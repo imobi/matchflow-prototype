@@ -1,0 +1,11 @@
+{
+  "name": "maxflow",
+  "main": "server.js",
+  "dependencies": {
+    "body-parser": "~1.4.2",
+    "express": "~4.9",
+    "method-override": "~2.0.2",
+    "mongoose": "~3.8.0",
+    "multer": "^0.1.8"
+  }
+}
