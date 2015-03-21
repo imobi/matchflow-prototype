@@ -1,6 +1,12 @@
 // public/js/controllers/MainCtrl.js
-var mainApp= angular.module('MainCtrl', []);
-mainApp.controller('MainController', function($scope) {
-    $scope.tagline = 'To the moon and back!';   
+(function() {
+	var app= angular.module('MainCtrl', []);
 
-});
+	app.controller('TabCtrl', function() {
+	    this.currentTab = 1;
+	});
+
+	app.controller('ConverterCtrl', function () {
+		
+	});
+})();

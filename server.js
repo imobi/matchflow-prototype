@@ -45,7 +45,7 @@ app.use('/fileName', bodyParser.json(),function (request,response,next) {
 	response.send("Done parsing file name.");
 });
 
-app.use('/upload',multer({ dest: './Video Uploads/',
+app.use('/upload',multer({ dest: './public/Video Uploads/',
 
 rename: function (fieldname,filename,request) {
     return newFileName;
@@ -67,6 +67,7 @@ onFileUploadComplete: function (file,request,response) {
 
 // set the static files location /public/img will be /img for users
 app.use(express.static(__dirname + '/public')); 
+//app.use('/Video Uploads',express.static(__dirname + '/Video Uploads')); 
 
 // routes ==================================================
 require('./app/routes')(app); // configure our routes

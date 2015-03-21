@@ -1,6 +1,6 @@
 //Dependencies and servcies for file upload
 (function () {
-	var app = angular.module('FileUploadModule',[]);
+	var app = angular.module('FileUploadModule',['DataSharingService']);
 	app.directive('fileModel', ['$parse', function ($parse) {
 	    return {
 	        restrict: 'A',
@@ -17,11 +17,14 @@
 	    };
 	}]);
 
-	app.controller('UploadControl', ['$http', function($http){ 
+	app.controller('UploadControl', ['$http','DataService', function($http,DataService){ 
 		console.log("Controller binded");  		
 		var control = this;
 		control.VideoFile = null;
 		control.fileInfo = {};
+		control.showVideoPlayer = false;
+		control.showConvertVideoButton = false;
+		control.completed = false;
 	    this.uploadFile = function(){
 	    	sendFileName();
 	    	this.showUploadInformation = true;
@@ -29,22 +32,27 @@
 	        var file = control.VideoFile;	     
 	        control.originalFileInfo= file;
 	        fd.append('file', file);
-	        fd.append('name', this.fileName);	   
-	        control.uploadStatus= 'Starting file upload...';
-	        
+   
+	        control.uploadStatus= 'Uploading video, please wait...';	        
 	        $http.post("/upload", fd, {
 	            transformRequest: angular.identity,
 	            headers: {'Content-Type': undefined}
 	        })
 	        .success(function(data){
 	        	control.success = data[0]+" was uploaded to "+data[1];
+	        	control.fullFilePath = data[1].split('\\').slice(1).join('\\');
+	        	control.fullFileName = data[1].split('\\').pop();
+	        	control.showVideoPlayer = true;
+	        	control.showConvertVideoButton = true;
+	        	control.completed = true;
+
 	        })
 	        .error(function(){
-	        	control.uploadStatus = "Error uploading file, try again"
+	        	control.uploadStatus = "Error uploading file, try again."
 	        });
     	};
 
-    	function sendFileName() {
+      	function sendFileName() {
     		$http.post('/fileName', {file_name:control.fileName}).success(function(data) {
     			console.log(data);
     		});
