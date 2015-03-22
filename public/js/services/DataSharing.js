@@ -3,15 +3,25 @@
 var app = angular.module('DataSharingService',[]);
 
 app.service('DataService', function () {
-	console.log('Data service running in bg');
 	var serviceScope = this;
-	this.showConverterValue = false;
-	this.setShowConverterValue = function (value) {
-		serviceScope.showConverterValue=value;
+	this.fileNameSelected = null;
+	this.filePath = null;
+
+	this.setFileNameSelected = function (value) {
+		serviceScope.fileNameSelected=value;
 	};
-	this.getShowConverterValue = function () {
-		return serviceScope.showConverterValue;
+	this.getFileNameSelected = function () {
+		return serviceScope.fileNameSelected;
 	};
+
+	
+	this.setFilePath = function (value) {
+		serviceScope.filePath=value;
+	};
+	this.getFilePath = function () {
+		return serviceScope.filePath;
+	};
+
 });
 
 })();

@@ -4,12 +4,10 @@ var express        = require('express');
 var app            = express();
 var bodyParser     = require('body-parser');
 var methodOverride = require('method-override');
-var multer     =       require('multer');
-
-//var ffmpeg     =       require("fluent-ffmpeg");
+var multer         = require('multer');
+var ffmpeg         = require("fluent-ffmpeg");
 
 // configuration ===========================================
-    
 // config files
 //var db = require('./config/db');
 
@@ -21,21 +19,6 @@ var port = process.env.PORT || 3000;
 // mongoose.connect(db.url); 
 
 // middleware ==============================================
-// get all data/stuff of the body (POST) parameters
-// parse application/json 
-//app.use(bodyParser.json()); 
-
-// parse application/vnd.api+json as json
-//app.use(bodyParser.json({ type: 'application/vnd.api+json' })); 
-
-// parse application/x-www-form-urlencoded
-//app.use(bodyParser.urlencoded({ extended: true })); 
-
-// override with the X-HTTP-Method-Override header in the request. simulate DELETE/PUT
-//app.use(methodOverride('X-HTTP-Method-Override')); 
-
-//multer for file uploading
-
 
 var newFileName;
 
@@ -64,6 +47,30 @@ onFileUploadComplete: function (file,request,response) {
 }
 }));
 
+//FFMPEG middleware
+//Function uses fluent-ffmpeg module to encode and compress file according to chosen specifications
+app.use('/getVideoMetaData',bodyParser.json(), function (request,response,next) {
+	var fileName = request.body.fileName;
+	var filePath = request.body.filePath;
+	ffmpeg.ffprobe(filePath, function(err, metadata) {
+		response.send(metadata);	
+	}); 	
+});
+
+app.use('/convert',bodyParser.json(), function (request,response,next) {
+	var responseData = [];
+	var fileName = request.body.fileName;
+	var filePath = request.body.filePath;
+	var newVideoName = 'Converted_'+fileName.split('.')[0]+'.mp4';
+	var convertedVideo = ffmpeg(filePath)
+	    .fps(request.body.framerate)
+	    .size(request.body.resolution)
+	    .autopad()
+	    .format('mp4')
+	    .on('end', function() { response.send("Success! Converted video has beed saved as: "+newVideoName);})
+	    .on('error',function(error) {response.send("Error happened during conversion: "+error.message);});	
+  	convertedVideo.save(newVideoName);
+});
 
 // set the static files location /public/img will be /img for users
 app.use(express.static(__dirname + '/public')); 

@@ -17,17 +17,18 @@
 	    };
 	}]);
 
-	app.controller('UploadControl', ['$http','DataService', function($http,DataService){ 
-		console.log("Controller binded");  		
+	app.controller('UploadControl', ['$http','DataService', function($http,DataService){ 		
 		var control = this;
+		control.fileName = "MySportsMatch"
 		control.VideoFile = null;
 		control.fileInfo = {};
 		control.showVideoPlayer = false;
 		control.showConvertVideoButton = false;
 		control.completed = false;
+		control.fullFileName = "Uploading video...";
 	    this.uploadFile = function(){
 	    	sendFileName();
-	    	this.showUploadInformation = true;
+	    	this.showVideoInformation = true;
 	        var fd = new FormData();
 	        var file = control.VideoFile;	     
 	        control.originalFileInfo= file;
@@ -39,12 +40,16 @@
 	            headers: {'Content-Type': undefined}
 	        })
 	        .success(function(data){
-	        	control.success = data[0]+" was uploaded to "+data[1];
+	        	control.uploadStatus = data[0]+" was uploaded to "+data[1];
 	        	control.fullFilePath = data[1].split('\\').slice(1).join('\\');
 	        	control.fullFileName = data[1].split('\\').pop();
-	        	control.showVideoPlayer = true;
+	        	if (['mp4','ogg','wemb'].indexOf(data[0].split('.').pop().toLowerCase())>-1) control.showVideoPlayer = true;
+	        	else control.showVideoPlayer = false;
+	        	DataService.setFileNameSelected(control.fullFileName);
+	        	DataService.setFilePath(data[1]);
 	        	control.showConvertVideoButton = true;
 	        	control.completed = true;
+
 
 	        })
 	        .error(function(){

@@ -27,5 +27,12 @@ var app = angular.module('Maxflow',['MainCtrl','FileUploadModule']);
 		};
 	});
 
+	app.directive('videoTable',function () {
+		return {
+			restrict:'E',
+			templateUrl:'../views/videoInfoTable.html'
+		};
+	});
+
 })();
 
