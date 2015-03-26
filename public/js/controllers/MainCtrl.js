@@ -4,19 +4,15 @@
 	var tabScope;
 	var converterScope;
 
-
-	app.controller('TabCtrl' ,function($scope) {
+	app.controller('TabCtrl' ,['$scope','$controller', function($scope,$controller) {
 	    this.currentTab = 1;
 	    tabScope = this;
-
 	    $scope.$watch(function () { return tabScope.currentTab; }, function(newVal, oldVal) {
     		if (newVal==2) { 
-    			converterScope.getVideoMetaData();
+   					converterScope.getVideoMetaData(); //And call the method on the newScope.
     		}
     	});
-	});
-
-
+	}]);
 
 	app.controller('ConverterCtrl', ['$http','DataService',function ($http,DataService) {
 		converterScope = this;
@@ -24,9 +20,11 @@
 		//Conversion status
 		this.conversionStatus = "";
 		this.showConversionStatus = false;
+		this.conversionComplete =false;
+		this.showConvertButton = false;
 
 		//Initial video meta data variables as generic statuses, note
-		this.currentResolution = this.currentAspect = this.currentFR = this.currentFormat = this.currentCodec = "Fetching...";
+		this.currentResolution = this.currentAspect = this.currentFR = this.currentFormat = this.currentCodec = "Fetching data...";
 		this.recResolution = this.recAspect = this.recFR = this.recFormat = this.recCodec = "Calculating..."
 
 		//Methods using the DataService service to access the file name and path of the selected file that was uploaded.
@@ -90,11 +88,13 @@
 				converterScope.recFormat = 'mp4';
 				//Codec
 				converterScope.recCodec = 'h264';
+				converterScope.showConvertButton = true;
 			});
 		};
 
 		this.startConversion = function () {
 			converterScope.showConversionStatus = true;
+			converterScope.showConvertButton = false;
 			converterScope.conversionStatus = "Converting video. Please wait...";			
 			conversionData = {
 				fileName:converterScope.getSelectedFileName(),
@@ -102,11 +102,71 @@
 				resolution: converterScope.recResParameter,
 				framerate:converterScope.recFR
 			};
-			$http.post('/convert', conversionData).success(function (data) {
+			$http.post('/convert', conversionData).success(function (data) {		
+				converterScope.conversionComplete = true;
+				converterScope.conversionStatus = "Conversion successfully completed.";
+				console.log(data);
+				
+			})
+			.error(function (data) {
 				converterScope.conversionStatus = data;
 			});
 		};
+	}]);
+	
 
+
+	app.controller('EditorCtrl', ['$http','DataService',function ($http, DataService) {
+		editorScope = this;
+		this.fileName = DataService.getFileNameSelected();
+		this.filePath = DataService.getFilePath();
+		this.lagTime = this.leadTime = 10;
+		thisprojectSubmittedError = false;
+		this.statusProjectSubmitted = false;
+		this.showAddProjectForm = true;
+		this.statusEventAdded = false;
+		this.savedEventName = "";
+		this.numberOfEvents = 0;
+		this.events = [];
+
+		this.addProject = function () {
+			var projectData = {"projectName":editorScope.projectName,
+								"videoPath":editorScope.filePath
+							};		
+			$http.post('/addproject', projectData).success(function (response) {
+				editorScope.statusProjectSubmitted = response.success;
+				if (!response.success) editorScope.projectSubmittedError = response.error;
+			});
+		};
+		this.showEvents = function () {
+			console.log("Running show events function..");
+			$http.get('/events').success(function (data) {
+				editorScope.allevents = data;
+				console.log("Events:");
+				console.log(data);
+			});
+		};
+
+		this.addEvent = function () {
+			//Collect the event data input by the user into one object
+			var eventData = {"event_name":editorScope.eventName,
+							"lag_time":editorScope.lagTime,
+							"lead_time":editorScope.leadTime
+						};
+			editorScope.savedEventName = editorScope.eventName;
+			//Add event to database
+			$http.post('/addevent',eventData).success(function (response) {		
+				editorScope.statusEventAdded = response.success;
+				if (editorScope.statusEventAdded) {
+					editorScope.numberOfEvents = response.number_of_events;
+					editorScope.events = response.events;
+					editorScope.eventName = "";					
+				}
+			});
+
+		};
 
 	}]);
+
+
 })();

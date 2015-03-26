@@ -34,5 +34,12 @@ var app = angular.module('Maxflow',['MainCtrl','FileUploadModule']);
 		};
 	});
 
+	app.directive('editorTab', function () {
+		return {
+			restrict:'E',
+			templateUrl:'../views/editor-tab.html'
+		};
+	});
+
 })();
 

@@ -81,10 +81,34 @@ body {
 }
 
 /*Form styles*/
-.ng-invalid {
+.ng-invalid.ng-dirty {
   border-color:red;
 }
 
-.ng-valid.ng-dirty {
+.ng-invalid.ng-pristine {
+  border-color:blue;
+}
+
+.ng-valid {
   border-color:green;
+}
+
+.middle-it {
+  text-align:center;
+}
+
+.lefty {
+  text-align:left;
+}
+
+.righty {
+  text-align:right;
+}
+
+.ng-pristine {
+  border-color:blue;
+}
+
+.ng-untouched {
+  border-color:blue;
 }

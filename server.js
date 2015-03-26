@@ -6,20 +6,72 @@ var bodyParser     = require('body-parser');
 var methodOverride = require('method-override');
 var multer         = require('multer');
 var ffmpeg         = require("fluent-ffmpeg");
-
-// configuration ===========================================
-// config files
-//var db = require('./config/db');
+var mongo 		   = require('mongodb');
+var mongoose 	   = require('mongoose');
 
 // set our port
 var port = process.env.PORT || 3000; 
 
-// connect to our mongoDB database 
-// (uncomment after you enter in your own credentials in config/db.js)
-// mongoose.connect(db.url); 
+//connect to our MongoDB
+mongoose.connect('mongodb://localhost/flowbase', function(err) {
+    if(err) {
+        console.log('Connection error for MongoDB', err);
+    } else {
+        console.log('Connection successful to MongoDB');
+    }
+});
+
+//Create schemas
+//Create a projects collection to keep track of projects
+var ProjectsSchema = new mongoose.Schema({
+  "project_id": "ObjectId",
+  "name": "String",
+  "description": "String",
+  "date_created": { "type": "Date", "default": Date.now }
+});
+
+//Create an events definition schema which will be used to create events definition collection for the current project
+var EventsDefinitionSchema = new mongoose.Schema({
+	"event_def_id":"ObjectId",
+	"event_name":"String",
+	"lead_time":"Number",
+	"lag_time":"Number"
+});
+
+var ProjectsCollection = mongoose.model('projects', ProjectsSchema);
+var currentProjectEventDefinitionsCollection;
 
 // middleware ==============================================
+//Database middleware
 
+app.use ('/addproject', bodyParser.json(), function (req,res) {
+	var projectName = req.body.projectName;
+ 	var newProject = new ProjectsCollection({"name": projectName, "description": "Empty for now"});
+	newProject.save(function(err){
+	    if(err) res.send({"success":false,"error":err});
+	    else {
+	    	//Create events definition collection for this project
+	    	currentProjectEventDefinitionsCollection = mongoose.model(projectName.match(/[a-z0-9]/gi).join("")+'_event_defs',EventsDefinitionSchema);
+	    	res.send({"success":true});
+	    }
+	});
+});
+
+app.use('/addevent', bodyParser.json(), function (req,res) {
+	console.log("Event info received:"+req.body.event_name);
+	var newEvent = new currentProjectEventDefinitionsCollection({"event_name":req.body.event_name,"lead_time":req.body.lead_time,"lag_time":req.body.lead_time});
+	newEvent.save(function (err) {
+		if (err) res.send({"success":false,"error":err});
+		else {
+				currentProjectEventDefinitionsCollection.find(function(err,events) {
+					res.send({"success":true,"number_of_events":events.length,"events":events});
+				});				
+			}
+	});
+});
+
+
+//Create global variable for file name of video
 var newFileName;
 
 //Parse the file name before uploading file
@@ -67,9 +119,9 @@ app.use('/convert',bodyParser.json(), function (request,response,next) {
 	    .size(request.body.resolution)
 	    .autopad()
 	    .format('mp4')
-	    .on('end', function() { response.send("Success! Converted video has beed saved as: "+newVideoName);})
-	    .on('error',function(error) {response.send("Error happened during conversion: "+error.message);});	
-  	convertedVideo.save(newVideoName);
+	    .on('end', function() {response.send("Success! Converted video has beed saved as: "+newVideoName);})
+	    .on('error',function(error) {response.send("Error happened during conversion: "+error.message);})	
+	    .save(newVideoName);
 });
 
 // set the static files location /public/img will be /img for users

@@ -8,10 +8,12 @@
     	<meta name="viewport" content="width=device-width, initial-scale=1">
 	    <title>Maxflow Sports Analysis</title>
 	    <!--  Links to Twitter bootstrap css files-->
-	    <link href="/libs/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+	    <link href="/libs/bootstrap/dist/css/bootstrap.css" rel="stylesheet">
 	    <link href="/libs/bootstrap/dist/css/jumbotron-narrow.css" rel="stylesheet">
 	</head>
 	<body>
+		<script type='text/javascript' src='/libs/jquery/dist/jquery.min.js'></script>	
+		<script type='text/javascript' src='/libs/bootstrap/dist/js/bootstrap.min.js'></script>
 		<script type='text/javascript' src='/libs/angular/angular.min.js'></script>
 		<script type='text/javascript' src='js/controllers/MainCtrl.js'></script>
 		<script type='text/javascript' src='/js/services/FileUpload.js'></script>
@@ -33,10 +35,12 @@
 	    			<ul class="nav nav-pills">
 	    				<li><a href ng-click="tabs.currentTab=1">Upload</a></li>
 	    				<li><a href ng-click="tabs.currentTab=2">Converter</a></li>
+	    				<li><a href ng-click="tabs.currentTab=3">Editor</a></li>
 	    			</ul>
 	    		</nav>
 	    		<upload-tab ng-show="tabs.currentTab==1"></upload-tab>
-	    		<converter-tab ng-show = "tabs.currentTab==2"></converter-tab>				
+	    		<converter-tab ng-show = "tabs.currentTab==2"></converter-tab>		
+	    		<editor-tab ng-show= "tabs.currentTab==3"></editor-tab>		
 			</div>
 		</div>
 	</body>

@@ -38,8 +38,9 @@
 				</tr>
     		</tbody>
 		</table>
-     	<p style='text-align:center'><button class="btn btn-lg btn-primary" role="button" ng-click="convert.startConversion()" >Convert using recommended settings</button></p>	
+     	<p style='text-align:center'><button class="btn btn-lg btn-primary" role="button" ng-show="convert.showConvertButton" ng-click="convert.startConversion()" >Convert using recommended settings</button></p>	
      	<p ng-show="convert.showConversionStatus" class="text-primary">{{convert.conversionStatus}}</p>
+        <p style='text-align:center'><button class="btn btn-lg btn-success" role="button" ng-show="convert.conversionComplete" ng-click="tabs.currentTab=3">Start analysis in Editor</button></p>
 	</div>
 	
 </div>  

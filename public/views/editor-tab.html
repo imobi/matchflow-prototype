@@ -1,0 +1,64 @@
+<div class="container" id="EditorTab" ng-controller="EditorCtrl as editor">		
+  	<div class="jumbotron" id="EditorBox">
+        <h1>Editor</h1>
+        <p class="lead">Let's analyse <span class='text-primary'>{{editor.fileName}}</span></p>
+        <form name="ProjectNameForm" novalidate class="lefty" ng-show="!editor.statusProjectSubmitted">
+            <p class='text-primary'>Let's play a naming game...</p>
+            <div class="form-group">
+                <label for="eventName">Enter project name: </label>
+                <input type="text" ng-model="editor.projectName" class="form-control input-lg" id="eventName" placeholder = "e.g. Game4_Analysis_Lions" required>   
+            </div>
+            <p class="middle-it"><button class="btn btn-primary btn-sm" role="button" ng-click="editor.addProject()">Confirm</button></p>
+            <div class="alert alert-danger alert-dismissible" role="alert" ng-show="editor.projectSubmittedError==false">
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <strong>Error!</strong> Oh snap! There was a problem creating your project. Try again.
+            </div>
+        </form>
+        <form name="AddEventForm" novalidate class="lefty" ng-show="editor.statusProjectSubmitted">
+            <div class="alert alert-success alert-dismissible" role="alert" ng-show="editor.statusProjectSubmitted">
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <strong>Project Created!</strong> {{editor.projectName}} was successfuly created as a Maxflow project.
+            </div>
+            <p class='text-primary'>Now define your events!</p>
+            <div class="form-group has-sucess has-feedback">
+                <label for="eventName">Enter event name: </label>
+                <input type="text" ng-model="editor.eventName" class="form-control input-lg " id="EventName" placeholder = "Type event name here to add new event" required>
+            </div>
+            <div class="form-group form-inline">
+                <label for="lagTime">Enter lag time (seconds) </label>
+                <input type="number" value="10" ng-model="editor.lagTime" class="form-control" id="lagTime" placeholder="10" required>
+                <label for="leadTime">Enter lag time (seconds) </label>
+                <input type="number" value="10" ng-model="editor.leadTime" class="form-control" id="lagTime" placeholder="10" required>
+            </div>
+            <div class="alert alert-success" role="alert" ng-show="editor.statusEventAdded">
+                <strong>Event added!</strong> {{editor.savedEventName}} was successfully added to this project ({{editor.projectName}}).
+            </div>
+            <p style='text-align:center'><button class="btn btn-primary btn-block" role="button" ng-click="editor.addEvent()" ng-disabled="AddEventForm.$invalid">Add event</button></p>
+
+            </p>
+        </form>
+
+        <div ng-show="editor.numberOfEvents>0" class="lefty">
+            <p class='text-success lefty'>Events defined for project: {{editor.projectName}} | Total events: {{editor.numberOfEvents}}</p>
+            <table class="table table-bordered table-striped table-hover">
+                <thead>
+                    <tr class="active">
+                        <th class="success">Event Name</th>
+                        <th class="success">Lag Time (sec)</th>
+                        <th class="success">Lead Time (sec)</th>
+                    </tr>
+                </thead>
+                <tbody ng-repeat = "event in editor.events">
+                    <tr>
+                        <td>{{event.event_name}}</td>
+                        <td>{{event.lag_time}}</td>
+                        <td>{{event.lead_time}}</td>
+                    </tr>
+                </tbody>
+            </table>
+         	<p class="middle-it"><button class="btn btn-primary btn-sm" role="button" ng-click="" ng-show="editor.numberOfEvents>0" >I'm done adding events</button></p>
+        </div>    
+
+	</div>
+	
+</div>  
