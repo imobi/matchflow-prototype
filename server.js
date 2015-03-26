@@ -59,7 +59,7 @@ app.use ('/addproject', bodyParser.json(), function (req,res) {
 
 app.use('/addevent', bodyParser.json(), function (req,res) {
 	console.log("Event info received:"+req.body.event_name);
-	var newEvent = new currentProjectEventDefinitionsCollection({"event_name":req.body.event_name,"lead_time":req.body.lead_time,"lag_time":req.body.lead_time});
+	var newEvent = new currentProjectEventDefinitionsCollection({"event_name":req.body.event_name,"lead_time":req.body.lead_time,"lag_time":req.body.lag_time});
 	newEvent.save(function (err) {
 		if (err) res.send({"success":false,"error":err});
 		else {
