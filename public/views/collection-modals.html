@@ -1,0 +1,173 @@
+<!--Modals-->
+
+<!--Modal to edit an event in a collection -->
+<div class="modal fade" id="EditEventModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel">Edit event details</h4>
+      </div>
+      <div class="modal-body">
+        <form name="EditEventForm" novalidate class="lefty">
+            <h2 class='text-primary'>Edit event details and then click 'save' or click 'close' to exit without any changes.</h2>
+            <div class="form-group has-sucess has-feedback">
+                <label for="eventName">Event name: </label>
+                <input type="text" ng-model="collection.currentEventName" class="form-control input-lg " id="EventName" placeholder = "Type event name here to add new event" required>
+            </div>
+            <div class="form-group">
+                <label for="leadTime">Lead time (seconds) </label>
+                <input type="number" ng-model="collection.currentLeadTime" class="form-control" id="leadTime" placeholder="10" required>
+                <label for="lagTime">Lag time (seconds) </label>
+                <input type="number" ng-model="collection.currentLagTime" class="form-control" id="lagTime" placeholder="10" required>
+            </div>
+            <p>
+                <div class="alert alert-success" role="alert" ng-show="collection.eventUpdatedResult==true">
+                    <strong>Event updated!</strong>
+                </div>
+
+                <div class="alert alert-danger" role="alert" ng-show="!(collection.eventUpdatedError==false)">
+                    <strong>Error!</strong> Oh snap! {{collection.eventUpdatedError}} Try again.
+                </div>
+            </p>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default btn-lg" data-dismiss="modal" ng-click="collection.boxClosed()">Close</button>
+        <button type="button" class="btn btn-success btn-lg" data-toggle="modal" ng-disabled="EditEventForm.$invalid" ng-show="collection.eventUpdatedResult==false" ng-click="collection.updateEvent()" >Save changes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!--Modal to confirm deletion of collection -->
+<div class="modal fade" id="DeleteConfirmationModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel">Confirm deletion of collection</h4>
+      </div>
+      <div class="modal-body">
+        <p> 
+            <div class="alert alert-success" role="alert" ng-show="collection.collectionDeletedResult==true">
+                <strong>Collection deleted!</strong> {{collection.collectionDeletedCollectionNameSave}} deleted.
+            </div>
+            <div class="alert alert-danger" role="alert" ng-show="!(collection.collectionDeletedError==false)">
+                <strong>Error!</strong> Oh snap! {{collection.collectionDeletedError}} Try again.
+            </div>
+        </p>
+        <p ng-show="collection.collectionDeletedResult==false">
+            Are you sure you want to delete collection "{{collection.collectionSelected}}"? All events linked to this collection will also be deleted.
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-success btn-lg" ng-click="collection.boxClosed()" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-danger btn-lg" data-toggle="modal" ng-show="collection.collectionDeletedResult==false" ng-click="collection.deleteCollection()" >Delete</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!--Modal to confirm deletion of event -->
+<div class="modal fade" id="EventDeleteConfirmationModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel">Confirm deletion of event</h4>
+      </div>
+      <div class="modal-body">
+        <p> 
+            <div class="alert alert-success" role="alert" ng-show="collection.eventDeletedResult==true">
+                <strong>Event deleted!</strong> {{collection.eventDeletedNameSaved}} deleted.
+            </div>
+            <div class="alert alert-danger" role="alert" ng-show="!(collection.eventDeletedError==false)">
+                <strong>Error!</strong> Oh snap! {{collection.eventDeletedError}} Try again.
+            </div>
+        </p>
+        <p ng-show="collection.eventDeletedResult==false">
+            Are you sure you want to delete event "{{collection.eventSelected}}" from "{{collection.collectionSelected}}" collection"?
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-success btn-lg" ng-click="collection.boxClosed()" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-danger btn-lg" data-toggle="modal" ng-show="collection.eventDeletedResult==false" ng-click="collection.deleteEvent()" >Delete</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!--Modal for Creating a new collection-->
+<div class="modal fade" id="AddCollectionModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel">Event Adder</h4>
+      </div>
+      <div class="modal-body">
+        <form name="createCollectionForm" class="form-group lefty" novalidate>      
+            <p><h2 class='text-primary'>Create a new collection</h2></p>
+            <div class="form-group">
+                    <label for="collectionName">Collection name: </label>
+                    <input type="text" ng-model="collection.collectionName" class="form-control" id="collectionName" placeholder = "e.g. RugbyPlays_Super14" required></input>
+            </div>
+            <div>
+                <p>
+                    <button class="btn btn-primary btn-block btn-lg" role="button" ng-disabled="createCollectionForm.$invalid" ng-click="collection.addCollection()">Create Collection</button>
+                    <div class="alert alert-success" role="alert" ng-show="collection.collectionSubmittedResult==true">
+                        <strong>Collection created!</strong> {{collection.collectionNameSaved}} was successfuly created.
+                    </div>
+                    <div class="alert alert-danger" role="alert" ng-show="!(collection.collectionSubmittedError==false)">
+                        <strong>Error!</strong> Oh snap! {{collection.collectionSubmittedError}}
+                    </div>
+                </p>
+            </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default btn-lg" ng-click="collection.boxClosed()" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-success btn-lg" ng-show="collection.collectionSubmittedResult" data-toggle="modal" data-target="#AddEventModal">Add Events to {{collection.collectionSelected}}</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal for adding events -->
+<div class="modal fade" id="AddEventModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel">Event Adder</h4>
+      </div>
+      <div class="modal-body">
+                <form name="AddEventForm" novalidate class="lefty">
+                    <h2 class='text-primary'>Add events to {{collection.collectionSelected}} collection.</h2>
+                    <div class="form-group has-sucess has-feedback">
+                        <label for="eventName">Enter event name: </label>
+                        <input type="text" ng-model="collection.eventName" class="form-control input-lg " id="EventName" placeholder = "Type event name here to add new event" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="leadTime">Enter lead time (seconds) </label>
+                        <input type="number" value="10" ng-model="collection.leadTime" class="form-control" id="leadTime" placeholder="10" required>
+                        <label for="lagTime">Enter lag time (seconds) </label>
+                        <input type="number" value="10" ng-model="collection.lagTime" class="form-control" id="lagTime" placeholder="10" required>
+                    </div>
+                    <div class="alert alert-success" role="alert" ng-show="collection.statusEventAdded">
+                        <strong>Event added!</strong> {{collection.savedEventName}} was successfully added to this project.
+                    </div>
+                    <div class="alert alert-danger" role="alert" ng-show="!(collection.errorEventAdded==false)">
+                        <strong>Error!</strong> Oh snap! {{collection.errorEventAdded}}
+                    </div>
+                    <p style='text-align:center'><button class="btn btn-primary btn-block" role="button" ng-click="collection.addEvent()" ng-disabled="AddEventForm.$invalid">Add event</button></p>
+                    </p>
+                </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-success" ng-click="collection.boxClosed()" data-dismiss="modal">Done adding events.</button>
+      </div>
+    </div>
+  </div>
+</div>

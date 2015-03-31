@@ -1,0 +1,78 @@
+<div class="container" id="ProjectTab" ng-controller="ProjectCtrl as project">		
+  	<div class="jumbotron" id="ProjectBox">
+        <h1>Project Manager</h1>
+        <p class="lead">Manage exisiting projects or create a new project.</p>
+    </div>
+    <div class="container-fluid light">
+        <form class="form-group left" ng-show="project.projectList.length>0">
+            <p><h2 class='text-primary'>Choose from available projects</h2></p>
+            <select ng-model="project.projectSelected" class="form-control input-lg" required>
+                  <option ng-repeat="eachProject in project.projectList">{{eachProject.name}}</option>
+            </select>  
+            <p>
+            <div class="row">
+                <div class="col-md-4"><button class="btn btn-block btn-success btn-lg" role="button">Open</button></div>
+                <div class="col-md-4"><button class="btn btn-block btn-warning btn-lg" role="button">Edit</button></div>
+                <div class="col-md-4"><button class="btn btn-block btn-danger btn-lg" role="button">Delete</button></div>        
+            </div> 
+            </p>
+            <p class="lefty">Project selected: {{project.projectSelected}}</p>
+            <p class="h1 text-primary middle-it"><strong>OR</strong></p>       
+        </form>
+
+        <form name="createProjectForm" class="form-group lefty" novalidate>      
+            <p><h2 class='text-primary'>Create a new project</h2></p>
+            <div class="row">
+                <div class="col-md-6">
+                    <label for="projectName">Project name: </label>
+                    <input type="text" ng-model="project.projectName" class="form-control" id="projectName" placeholder = "e.g. Analysis_LionsVBarbarians" required></input>
+                </div>
+                <div class="col-md-6">
+                    <label for= "datePlayed">Date played:</label>
+                    <input type="date" ng-model="project.datePlayed" class="form-control" id="datePlayed"></input>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <label for= "localTeam">Local team:</label>
+                    <input type="text" ng-model="project.localTeam" class="form-control" id="localTeam" required></input>
+                </div>
+                <div class="col-md-6">
+                    <label for= "oppositionTeam">Opposition team:</label>
+                    <input type="text" ng-model="project.oppositionTeam" class="form-control" id="oppositionTeam" required></input>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <label for= "season">Season:</label>
+                    <input type="text" ng-model="project.season" class="form-control" id="season"></input>
+                </div>
+                <div class="col-md-6">
+                    <label for= "competition">Competition:</label>
+                    <input type="text" ng-model="project.competition" class="form-control" id="competition"></input>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <label for="localTeamScore">Local Team Score:</label>
+                    <input type='number' ng-model"project.localTeamScore" class="form-control" id="localTeamScore"></input>
+                </div>
+                <div class="col-md-6">
+                    <label for="oppositionTeamScore">Opposition Team Score:</label>
+                    <input type='number' ng-model"project.oppositionTeamScore" class="form-control" id="oppositionTeamScore"></input>
+                </div>
+            </div>
+            <p>
+                <div class="form-group">
+                    <button class="btn btn-primary btn-block btn-lg" role="button" ng-disabled="false&&createProjectForm.$invalid" ng-click="tabs.currentTab=3">Continue</button>
+                    <div class="alert alert-danger alert-dismissible" role="alert" ng-show="false">
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <strong>Error!</strong> Oh snap! There was a problem creating your project. Try again.
+                    </div>
+                </div>
+            </p>
+
+
+        </form>
+	</div>	
+</div>  

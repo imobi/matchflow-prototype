@@ -22,28 +22,54 @@ mongoose.connect('mongodb://localhost/flowbase', function(err) {
 });
 
 //Create schemas
-//Create a projects collection to keep track of projects
+//Create a projects schema to keep track of projects
 var ProjectsSchema = new mongoose.Schema({
-  "project_id": "ObjectId",
-  "name": "String",
-  "description": "String",
+  "name": {"type":"String","unique":true},
+  "date_played":{"type":"Date"},
+  "local_team":"String",
+  "opposition_team":"String",
+  "season":"String",
+  "competition":"String",
+  "local_team_score":"Number",
+  "opposition_team_score":"Number",
   "date_created": { "type": "Date", "default": Date.now }
 });
 
+//Creates a collections schema to keep track of collections of events
+var CollectionsSchema = new mongoose.Schema({
+	"name":{"type":"String","unique":true},
+	"date_created": {"type":"Date","default":Date.now}
+});
+
 //Create an events definition schema which will be used to create events definition collection for the current project
-var EventsDefinitionSchema = new mongoose.Schema({
-	"event_def_id":"ObjectId",
+var EventsSchema = new mongoose.Schema({
+	"collection_name":"String",
 	"event_name":"String",
 	"lead_time":"Number",
 	"lag_time":"Number"
 });
 
 var ProjectsCollection = mongoose.model('projects', ProjectsSchema);
-var currentProjectEventDefinitionsCollection;
+var CollectionsCollection = mongoose.model('collections',CollectionsSchema);
+var EventsCollection = mongoose.model('events',EventsSchema);
 
 // middleware ==============================================
 //Database middleware
 
+//CRUD for projects
+//Get projects from projects table in database
+app.use('/getprojects',function (req,res) {
+	ProjectsCollection.find(function (err, projects) {
+  		if (err) res.send("Error fetching projects from database.");
+  		else { 
+  			console.log(projects);
+  			res.send(projects);
+  		}
+	});
+
+});
+
+//Add a new project
 app.use ('/addproject', bodyParser.json(), function (req,res) {
 	var projectName = req.body.projectName;
  	var newProject = new ProjectsCollection({"name": projectName, "description": "Empty for now"});
@@ -57,19 +83,77 @@ app.use ('/addproject', bodyParser.json(), function (req,res) {
 	});
 });
 
+//CR(U)D for collections: No update required as this will be done through events CRUD
+//CREATE: Add a new collection
+app.use('/addcollection', bodyParser.json(), function (req,res) {
+	var newCollection = new CollectionsCollection ({"name":req.body.collectionName});
+	newCollection.save(function (err) {
+		if (err) res.send({"success":false,"error":err});
+		else res.send({"success": true});
+	});
+});
+
+
+//READ: Get exisiting collections
+app.use('/getcollections',function (req,res) {
+	CollectionsCollection.find(function (err, collections) {
+		if (err) res.send([{"name":"Error fetching collections. Error message: "+err}])
+		else res.send(collections);
+	});
+});
+
+
+//DELETE: Remove an existing collection
+app.use('/deletecollection',bodyParser.json(),function (req,res) {
+	CollectionsCollection.remove({'name':req.body.collectionName},function (err) {
+		if (err) res.send({"success":false,"error":err});
+		else res.send({"success":true});
+	});
+})
+
+//CRUD for events
+//Get events for a collection
+
+//CREATE: Add event to collection
 app.use('/addevent', bodyParser.json(), function (req,res) {
-	console.log("Event info received:"+req.body.event_name);
-	var newEvent = new currentProjectEventDefinitionsCollection({"event_name":req.body.event_name,"lead_time":req.body.lead_time,"lag_time":req.body.lag_time});
+	var newEvent = new EventsCollection({"collection_name":req.body.collection_name,"event_name":req.body.event_name,"lead_time":req.body.lead_time,"lag_time":req.body.lag_time});
 	newEvent.save(function (err) {
 		if (err) res.send({"success":false,"error":err});
 		else {
-				currentProjectEventDefinitionsCollection.find(function(err,events) {
+				EventsCollection.find(function(err,events) {
 					res.send({"success":true,"number_of_events":events.length,"events":events});
 				});				
 			}
 	});
 });
 
+//READ: Get all events for the selected collection
+app.use('/getevents',bodyParser.json(), function (req,res) {
+	var collectionName = req.body.collectionName;
+	EventsCollection.find({"collection_name":collectionName}, function (err,events) {
+		if (err) res.send([{"name":"Error fetching events for this collection. Error message: "+err}])
+		else res.send(events);
+	});
+});
+
+//UPDATE: Update an event in the collection
+app.use('/updateevent',bodyParser.json(), function (req,res) {
+	EventsCollection.update({ "collection_name": req.body.collection_selected, "event_name":req.body.event_selected },
+	 { "event_name": req.body.event_name, "lag_time":req.body.lag_time, "lead_time":req.body.lead_time}, function (err, numberAffected, raw_response) {
+		  if (err) res.send({"success":false, "error":err});
+		  else {		  	
+		  	res.send({"success":true})
+		  }
+	});
+});
+
+//DELETE: Delete an event in the collection
+app.use('/deleteevent',bodyParser.json(),function (req,res) {
+	EventsCollection.remove({'collection_name':req.body.collectionName, "event_name":req.body.eventName},function (err) {
+		if (err) res.send({"success":false,"error":err});
+		else res.send({"success":true});
+	});
+})
 
 //Create global variable for file name of video
 var newFileName;

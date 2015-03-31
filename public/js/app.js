@@ -1,5 +1,5 @@
 //Angular app: Functions controlling the front end in index.html
-var app = angular.module('Maxflow',['MainCtrl','FileUploadModule']);
+var app = angular.module('Maxflow',['MainCtrl','FileUploadModule','ui.bootstrap']);
 
 (function () {
 	app.directive('showConverter',function () {
@@ -34,10 +34,24 @@ var app = angular.module('Maxflow',['MainCtrl','FileUploadModule']);
 		};
 	});
 
-	app.directive('editorTab', function () {
+	app.directive('projectmanagerTab',function () {
 		return {
 			restrict:'E',
-			templateUrl:'../views/editor-tab.html'
+			templateUrl:'../views/projectmanager-tab.html'
+		};
+	});
+
+	app.directive('collectionmanagerTab',function () {
+		return {
+			restrict:'E',
+			templateUrl:'../views/collectionmanager-tab.html'
+		};
+	});
+
+	app.directive('collectionModals',function () {
+		return {
+			restrict:'E',
+			templateUrl:'../views/collection-modals.html'
 		};
 	});
 

@@ -36,10 +36,18 @@ body {
   .container {
     max-width: 1030px;
   }
+
+  .light {
+    background-color:#F7F7F9;
+  }
 }
 .container-narrow > hr {
   margin: 30px 0;
 }
+
+
+
+
 
 /* Main marketing message and sign up button */
 .jumbotron {
@@ -85,11 +93,7 @@ body {
   border-color:red;
 }
 
-.ng-invalid.ng-pristine {
-  border-color:blue;
-}
-
-.ng-valid {
+.ng-valid.ng-dirty {
   border-color:green;
 }
 
@@ -105,10 +109,4 @@ body {
   text-align:right;
 }
 
-.ng-pristine {
-  border-color:blue;
-}
 
-.ng-untouched {
-  border-color:blue;
-}

@@ -1,0 +1,106 @@
+<div class="container" id="CollectionTab" ng-controller="CollectionCtrl as collection">		
+  	<div class="jumbotron" id="CollectionBox">
+        <h1>Collection Manager</h1>
+        <p class="lead">Manage exisiting collections of events or create a new collection.</p>
+        <h2 class="text-success" ng-show="collection.collectionList.length>0">Collection chosen for project: {{collection.collectionSelected}}</h2>
+    </div>
+
+    <div class="container-fluid light">
+        <form class="form-group left" ng-show="collection.collectionList.length>0">
+            <p><h2 class='text-primary'>Collections</h2></p>
+            <div class="row">
+                <div class="col-md-9">
+                    <select ng-model="collection.collectionSelected" class="form-control input-lg" required>
+                          <option ng-repeat="eachCollection in collection.collectionList">{{eachCollection.name}}</option>
+                    </select>  
+                </div>
+                <div class="col-md-1">
+                    <button class="btn btn-primary btn-lg" data-toggle="modal" data-target="#AddCollectionModal" role="button">
+                        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+                    </button>
+                </div>   
+                <div class="col-md-1">
+                    <button class="btn btn-danger btn-lg" data-toggle="modal" data-target="#DeleteConfirmationModal" role="button">
+                        <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                    </button>
+                </div> 
+                <div class="col-md-1">
+                    <button class="btn btn-block btn-success btn-lg" role="button">
+                        <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
+                    </button>
+                </div>
+ 
+            </div>
+            <div id="EventEditor" ng-show="collection.eventsForCollection.length>0">
+                <h4 class="text-success">Events in  {{collection.collectionSelected}} collection </h2>
+                <table class="table table-bordered table-striped table-hover">
+                    <thead>
+                        <tr class="active">
+                            <th class="success">Event Name</th>
+                            <th class="success">Lead Time (sec)</th>
+                            <th class="success">Lag Time (sec)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat = "event in collection.eventsForCollection">
+                            <td>{{event.event_name}}</td>
+                            <td>{{event.lead_time}}</td>
+                            <td>{{event.lag_time}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <p class='text-success lefty'>Total events: {{collection.numberOfEvents}}</p>
+                <div>
+                    <p>
+                        <h2 class="text-primary">Manage Events in Collection</h2>
+                        <div class="row">
+                            <div class="col-md-9">
+                                <select id="eventSelector" ng-model="collection.eventSelected" class="form-control input-lg" required>
+                                      <option ng-repeat="event in collection.eventsForCollection">{{event.event_name}}</option>
+                                </select>  
+                            </div>                    
+                            <div class="col-md-1">
+                                <button class="btn btn-block btn-primary btn-lg" data-toggle="modal" data-target="#AddEventModal" role="button">
+                                    <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+                                </button>
+                            </div>
+                            <div class="col-md-1">
+                                <button class="btn btn-block btn-warning btn-lg" data-toggle="modal" ng-show="collection.eventsForCollection.length>0" data-target="#EditEventModal" role="button">
+                                    <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
+                                </button>
+                            </div>  
+                            <div class="col-md-1">
+                                <button class="btn btn-block btn-danger btn-lg" data-toggle="modal" data-target="#EventDeleteConfirmationModal" role="button">
+                                    <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                                </button>
+                            </div>    
+                        </div> 
+                        <div class="text-warning">
+                            <div class="col-md-4"><strong>Lead Time: </strong> {{collection.currentLeadTime}} </div>
+                            <div class="col-md-4"><strong>Lag Time: </strong> {{collection.currentLagTime}} </div>
+                        </div>
+                    </p>
+                </div>
+            </div>
+
+            <div ng-show="collection.eventsForCollection.length<1">
+                <h2 class='text-primary'>No exisiting events in {{collection.collectionSelected}} Collection</h2>
+                <p>
+                    <button class="btn btn-block btn-primary btn-lg" data-toggle="modal" data-target="#AddEventModal" role="button">
+                        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>Add Event(s)
+                    </button>
+                </p>
+            </div>
+
+        </form>
+        <div ng-show="collection.collectionList.length<1">
+            <h2 class='text-primary'>No exisiting collections</h2>
+            <p><button class="btn btn-block btn-primary btn-lg" data-toggle="modal" data-target="#AddCollectionModal" role="button">Create a new collection</button></p>
+        </div>
+        <collection-modals></collection-modals>
+
+
+
+
+	</div>	
+</div>  

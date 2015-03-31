@@ -15,6 +15,7 @@
 		<script type='text/javascript' src='/libs/jquery/dist/jquery.min.js'></script>	
 		<script type='text/javascript' src='/libs/bootstrap/dist/js/bootstrap.min.js'></script>
 		<script type='text/javascript' src='/libs/angular/angular.min.js'></script>
+		<script type='text/javascript' src='/libs/angular-bootstrap/ui-bootstrap.min.js'></script>
 		<script type='text/javascript' src='js/controllers/MainCtrl.js'></script>
 		<script type='text/javascript' src='/js/services/FileUpload.js'></script>
 		<script type='text/javascript' src='/js/services/DataSharing.js'></script>
@@ -31,16 +32,22 @@
 				<img alt="Maxflow" src="/img/maxflow140.png" />
 	    	</div>
 	    	<div id="ProcessTabs" ng-controller="TabCtrl as tabs">
-	    		<nav class="navbar navbar-default navbar-fixed-bottom">
-	    			<ul class="nav nav-pills">
-	    				<li><a href ng-click="tabs.currentTab=1">Upload</a></li>
-	    				<li><a href ng-click="tabs.currentTab=2">Converter</a></li>
-	    				<li><a href ng-click="tabs.currentTab=3">Editor</a></li>
+	    		<div class="container-fluid">
+				<nav>
+					<ul class="nav nav-pills pull-left">
+						<li><a href ng-click="tabs.currentTab=1">Collection Manager</a></li>
+	    				<li><a href ng-click="tabs.currentTab=2">Project Manager</a></li>	    				
+	    				<li><a href ng-click="tabs.currentTab=3">Video Manager</a></li>
+	    				<!--<li><a href ng-click="tabs.currentTab=4">Converter</a></li>-->
+	    				<li><a href ng-click="tabs.currentTab=5">Editor</a>
+
 	    			</ul>
 	    		</nav>
-	    		<upload-tab ng-show="tabs.currentTab==1"></upload-tab>
-	    		<converter-tab ng-show = "tabs.currentTab==2"></converter-tab>		
-	    		<editor-tab ng-show= "tabs.currentTab==3"></editor-tab>		
+	    		</div>
+	    		<collectionmanager-tab ng-show="tabs.currentTab==1"></collectionmanager-tab>
+	    		<projectmanager-tab ng-show="tabs.currentTab==2"></projectmanager-tab>
+	    		<upload-tab ng-show="tabs.currentTab==3"></upload-tab>
+	    		<converter-tab ng-show = "tabs.currentTab==4"></converter-tab>
 			</div>
 		</div>
 	</body>
