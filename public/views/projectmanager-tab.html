@@ -11,13 +11,16 @@
             </select>  
             <p>
             <div class="row">
-                <div class="col-md-4"><button class="btn btn-block btn-success btn-lg" role="button">Open</button></div>
-                <div class="col-md-4"><button class="btn btn-block btn-warning btn-lg" role="button">Edit</button></div>
-                <div class="col-md-4"><button class="btn btn-block btn-danger btn-lg" role="button">Delete</button></div>        
+                <div class="col-md-4"><button class="btn btn-block btn-success btn-lg" role="button" ng-disabled="true">Open (Video Analysis Mode)</button></div>
+                <div class="col-md-4"><button class="btn btn-block btn-warning btn-lg" role="button" ng-disabled="true">Edit</button></div>
+                <div class="col-md-4">
+                    <button class="btn btn-block btn-danger btn-lg" role="button" data-toggle="modal" data-target="#ProjectDeleteConfirmationModal">
+                        <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                    </button>
+                </div>        
             </div> 
             </p>
-            <p class="lefty">Project selected: {{project.projectSelected}}</p>
-            <p class="h1 text-primary middle-it"><strong>OR</strong></p>       
+            <p class="lefty">Project selected: {{project.projectSelected}}</p>    
         </form>
 
         <form name="createProjectForm" class="form-group lefty" novalidate>      
@@ -55,24 +58,104 @@
             <div class="row">
                 <div class="col-md-6">
                     <label for="localTeamScore">Local Team Score:</label>
-                    <input type='number' ng-model"project.localTeamScore" class="form-control" id="localTeamScore"></input>
+                    <input type='number' ng-model="project.localTeamScore" class="form-control" id="localTeamScore"></input>
                 </div>
                 <div class="col-md-6">
                     <label for="oppositionTeamScore">Opposition Team Score:</label>
-                    <input type='number' ng-model"project.oppositionTeamScore" class="form-control" id="oppositionTeamScore"></input>
+                    <input type='number' ng-model="project.oppositionTeamScore" class="form-control" id="oppositionTeamScore"></input>
                 </div>
             </div>
+
+            <div class="row">
+                <div class="col-md-12">
+                    <label for="collectionsDropDown">Select collection of events to use for this project:</label>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-8" ng-show="project.collectionList.length>0">
+                    <select id="collectionsDropDown" class="form-control" ng-model="project.selectedCollection" required>
+                        <option ng-repeat="collection in project.collectionList">{{collection.name}}</option>
+                    </select>
+                </div>
+                <div class="col-md-8" ng-show="project.collectionList.length==0">
+                    <h4 class="text-warning">No exisiting collections. Create one in Collection Manager.</h3>
+                </div>
+                <div class="col-md-4">
+                    <button class="btn btn-warning " role="button" ng-click="tabs.currentTab=2">
+                        <span class="glyphicon glyphicon-open-file" aria-hidden="true"></span><strong> Collection Manager</strong>
+                    </button>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-12">
+                    <label for="videosDropDown">Select video to use for this project.</label>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-8" ng-show="project.videoCollection.length>0">
+                    <select id="videosDropDown" class="form-control" ng-model="project.videoSelected" required>
+                        <option ng-repeat="video in project.videoCollection">{{video.video_name}}</option>
+                    </select>
+                </div>
+                <div class="col-md-8" ng-show="project.videoCollection.length==0">
+                    <h4 class="text-danger">No exisiting videos. Upload one in Video Manager.</h3>
+                </div>
+                <div class="col-md-4">
+                    <button class="btn btn-danger" role="button" ng-click="tabs.currentTab=3">
+                        <span class="glyphicon glyphicon-facetime-video" aria-hidden="true"></span><strong> Video Manager</strong>
+                    </button>
+                </div>
+            </div>
+
             <p>
-                <div class="form-group">
-                    <button class="btn btn-primary btn-block btn-lg" role="button" ng-disabled="false&&createProjectForm.$invalid" ng-click="tabs.currentTab=3">Continue</button>
-                    <div class="alert alert-danger alert-dismissible" role="alert" ng-show="false">
-                        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                        <strong>Error!</strong> Oh snap! There was a problem creating your project. Try again.
+                <div class="container-fluid light">
+                    <div class="form-group">
+                        <button class="btn btn-primary btn-block btn-lg" role="button" ng-disabled="createProjectForm.$invalid||project.collectionList.length<1||project.videoCollection.length<1" ng-click="project.addProject()">Create Project</button>
+                        <p>
+                            <div class="alert alert-danger" role="alert" ng-show="!(project.projectSubmittedError==false)">
+                                <strong>Error!</strong> Oh snap! {{project.projectSubmittedError}}
+                            </div>
+                                                    <p>
+                            <div class="alert alert-success" role="alert" ng-show="project.projectSubmittedResult==true">
+                                <strong>Yay!</strong> Project created successfully. Click "Open" to enter video analysis mode.
+                            </div>
+                        </p>
                     </div>
                 </div>
             </p>
-
-
         </form>
+
+        <!--Modal to confirm deletion of project -->
+        <div class="modal fade" id="ProjectDeleteConfirmationModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+          <div class="modal-dialog modal-sm">
+            <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">Confirm deletion of project</h4>
+              </div>
+              <div class="modal-body">
+                <p> 
+                    <div class="alert alert-success" role="alert" ng-show="project.projectDeletedResult==true">
+                        <strong>Project deleted!</strong> {{project.projectDeletedProjectNameSave}} deleted.
+                    </div>
+                    <div class="alert alert-danger" role="alert" ng-show="!(project.projectDeletedError==false)">
+                        <strong>Error!</strong> Oh snap! {{project.projectDeletedError}} Try again.
+                    </div>
+                </p>
+                <p ng-show="project.projectDeletedResult==false">
+                    Are you sure you want to delete project "{{project.projectSelected}}"? No collections or events will be affected.
+                </p>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-success btn-lg" ng-click="project.boxClosed()" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-danger btn-lg" data-toggle="modal" ng-show="project.projectDeletedResult==false" ng-click="project.deleteProject()" >Delete</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
 	</div>	
 </div>  
