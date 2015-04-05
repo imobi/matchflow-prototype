@@ -15,7 +15,8 @@ The completed web application will consist of three main components:
      - "competition":"String"
      - "local_team_score":"Number"
      - "opposition_team_score":"Number"
-     - "date_created": { "type": "Date", "default": Date.now }
+     - "collection_name": "String"
+     - "video": "String"
   - Collections Manager: CRUD for collections of events. Collections are stored in 'collections' table which has just two columns:
      -	"name":{"type":"String","unique":true}
      -	"date_created": {"type":"Date","default":Date.now}
@@ -39,41 +40,43 @@ The completed web application will consist of three main components:
      - tag_duration (difference between start_time and end_time)
 
 ##Completed Components
-- Collections Manager 
-  - Creating, listing, deletion and updating of collections (of events).
+- Projects Manager
+  - Creating, listing, deletion of projects
+  - Form validation for required fields.
   - Seamless modals used, no page loading.
   - Error handling
   - Confirmation prompt before deleting.
+- Collections Manager 
+  - Creating, listing, deletion and updating of collections (of events).
+  - Same features as projects manager ((modals, error handling, delete prompt).
 - Events Manager 
   -  Once a collection is selected, the events manager can be used to create, list, delete and update events inside the collection.
-  -  Same features as collections manager (modals, error handling, delete prompt)
-- Video Upload
-  - Offline upload: file is copied to Maxflow application folder inside "Video Uploads" folder.
-  - Video renaming according to user input via form.
-  - Validation: Upload button enabled only when a name and video file has been selected.
-  - Video information extraction including file format/type, size and name.
+  -  Same features as project manager (modals, error handling, delete prompt).
+- Video Manager
+  - Video upload: file is copied to Maxflow application folder inside "Video Uploads" folder.
+  - Video renaming according to user input via form. Validation: Upload button enabled only when a name and valid video file has been selected.
+  - Video listing and deletion.
   - In-browser video player displays video for mp4, ogg and webm video files.
-- Video Converter: Encoding and Compression
-  - Extracts resolution, aspect ratio, frame rate, format and codec of original video.
-  - Uses extracted information to calculate optimal settings* for encoding to achieve best compression and quality:
-     - Original aspect ratio is maintained
-     - Optimal format  chosen is mp4 using H.264 codec
-     - Optimal resolution for 16:9 aspect ratio videos chosen: 640x480 (SD)
-     - Optimal resolution for 4:3 aspect ratio videos chosen: 640x360 (SD)
-     - Videos with width lower than 640 pixels maintain original resolution to avoid distortion.
-     - Optimal frame rate is 30 fps or less. Videos with higher original frame rates are converted to 30 fps or half of original frame rate. e.g. 70 fps -> 35 fps.
+  - Video converter: Encoding and Compression, compresses large-sized, HD videos to optimal SD.
+    - Extracts resolution, aspect ratio, frame rate, format and codec of original video.
+    - Uses extracted information to calculate optimal settings* for encoding to achieve best compression and quality:
+       - Original aspect ratio is maintained
+       - Optimal format  chosen is mp4 using H.264 codec
+       - Optimal resolution for 16:9 aspect ratio videos chosen: 640x480 (SD)
+       - Optimal resolution for 4:3 aspect ratio videos chosen: 640x360 (SD)
+       - Videos with width lower than 640 pixels maintain original resolution to avoid distortion.
+       - Optimal frame rate is 30 fps or less. Videos with higher original frame rates are converted to 30 fps or half of original frame rate. e.g. 70 fps -> 35 fps.
   - **Note**: Optimal settings algorithm developed based on information from [Youtube's advanced encoding settings] (https://support.google.com/youtube/answer/1722171?hl=en) and [Vimeo's compression guidelines](https://vimeo.com/help/compression).
 
 ##Components in Development
-- Project manager CRUD
+- Project manager: Update feature to edit project fields.
 - Video analysis mode: Allow tagging of time points in the video with the events that were defined by the user.
 - Video player/browser: Integrating a feature-rich video player such as Video.js to enable advance video playing and timeline features in the browser.
 
 ##Features to be added later
 - See roadmap for more detail.
-- Progress bar: For video uploader and converter.
+- Progress bar: For video upload.
 - Sync process to synchronous videos on the user's machine with online, cloud-based server. This will allow the user to access videos from any location by logging in through the Maxflow web application on a web broswer.
-- AI/Neural network: Automatic tagging and categorizing of various sport scenes and plays in a video.
 
 ##Requirements
 
