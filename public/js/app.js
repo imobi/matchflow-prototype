@@ -2,21 +2,12 @@
 var app = angular.module('Maxflow',['MainCtrl','FileUploadModule','ui.bootstrap']);
 
 (function () {
-	app.directive('showConverter',function () {
-		return {
-			restrict:'E',
-			templateUrl:'../views/converter.html',
-			controller: function () {
-				this.permissions = false;
-			},
-			controllerAs: 'secret'
-		};
-	});
 
-	app.directive('uploadTab',function () {
+	//Directive to inject views
+	app.directive('videomanagerTab',function () {
 		return {
 			restrict:'E',
-			templateUrl:'../views/upload-tab.html'
+			templateUrl:'../views/videomanager-tab.html'
 		};
 	});
 

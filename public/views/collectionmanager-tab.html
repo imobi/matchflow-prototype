@@ -2,7 +2,6 @@
   	<div class="jumbotron" id="CollectionBox">
         <h1>Collection Manager</h1>
         <p class="lead">Manage exisiting collections of events or create a new collection.</p>
-        <h2 class="text-success" ng-show="collection.collectionList.length>0">Collection chosen for project: {{collection.collectionSelected}}</h2>
     </div>
 
     <div class="container-fluid light">
@@ -24,7 +23,7 @@
                         <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
                     </button>
                 </div> 
-                <div class="col-md-1">
+                <div ng-show="false" class="col-md-1">
                     <button class="btn btn-block btn-success btn-lg" role="button">
                         <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
                     </button>
@@ -65,15 +64,16 @@
                                 </button>
                             </div>
                             <div class="col-md-1">
+                                <button class="btn btn-block btn-danger btn-lg" data-toggle="modal" data-target="#EventDeleteConfirmationModal" role="button">
+                                    <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                                </button>
+                            </div>  
+                            <div class="col-md-1">
                                 <button class="btn btn-block btn-warning btn-lg" data-toggle="modal" ng-show="collection.eventsForCollection.length>0" data-target="#EditEventModal" role="button">
                                     <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
                                 </button>
                             </div>  
-                            <div class="col-md-1">
-                                <button class="btn btn-block btn-danger btn-lg" data-toggle="modal" data-target="#EventDeleteConfirmationModal" role="button">
-                                    <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
-                                </button>
-                            </div>    
+  
                         </div> 
                         <div class="text-warning">
                             <div class="col-md-4"><strong>Lead Time: </strong> {{collection.currentLeadTime}} </div>
@@ -94,8 +94,11 @@
 
         </form>
         <div ng-show="collection.collectionList.length<1">
-            <h2 class='text-primary'>No exisiting collections</h2>
-            <p><button class="btn btn-block btn-primary btn-lg" data-toggle="modal" data-target="#AddCollectionModal" role="button">Create a new collection</button></p>
+            <p>
+                <button class="btn btn-block btn-primary btn-lg" data-toggle="modal" data-target="#AddCollectionModal" role="button">
+                    <span class="glyphicon glyphicon-plus" aria-hidden="ture"></span> Create New Collection
+                </button>
+            </p>
         </div>
         <collection-modals></collection-modals>
 
