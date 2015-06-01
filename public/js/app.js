@@ -32,6 +32,8 @@ var app = angular.module('Maxflow',['MainCtrl','FileUploadModule','ui.bootstrap'
 		};
 	});
 
+
+
 	app.directive('collectionmanagerTab',function () {
 		return {
 			restrict:'E',
@@ -43,6 +45,20 @@ var app = angular.module('Maxflow',['MainCtrl','FileUploadModule','ui.bootstrap'
 		return {
 			restrict:'E',
 			templateUrl:'../views/collection-modals.html'
+		};
+	});
+
+	app.directive('projectModals', function () {
+		return {
+			restrict:'E',
+			templateUrl:'../views/project-modals.html'
+		};
+	});
+
+	app.directive('analyzerTab', function () {
+		return {
+			retrict:'E',
+			templateUrl:'../views/analyzer-tab.html'
 		};
 	});
 

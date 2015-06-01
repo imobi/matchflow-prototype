@@ -32,9 +32,9 @@ body {
 }
 
 /* Customize container */
-@media (min-width: 768px) {
+@media (min-width: 1920px) {
   .container {
-    max-width: 1030px;
+    max-width:1920px ;
   }
 
   .light {

@@ -11,11 +11,25 @@ var mongoose 	   = require('mongoose');
 var fs 			   = require('fs');
 
 
-
+//Set up and start our Node.js server
 // set our port
 var port = process.env.PORT || 3000; 
 
-//connect to our MongoDB
+// set the static files location /public/img will be /img for users
+app.use(express.static(__dirname + '/public')); 
+//app.use('/Video Uploads',express.static(__dirname + '/Video Uploads')); 
+
+// routes ==================================================
+require('./app/routes')(app); // configure our routes
+
+// start app ===============================================
+// startup our app at http://localhost:3000
+app.listen(port);               
+
+// shoutout to the user                     
+console.log('Magic happens on port ' + port);
+
+//Let's connect to MongoDB now
 mongoose.connect('mongodb://localhost/flowbase', function(err) {
     if(err) {
         console.log('Connection error for MongoDB', err);
@@ -46,6 +60,12 @@ var CollectionsSchema = new mongoose.Schema({
 	"date_created": {"type":"Date","default":Date.now}
 });
 
+//Creates a collections schema to keep track of collections of events
+var ProjectCollectionsSchema = new mongoose.Schema({
+	"name":{"type":"String","unique":true},
+	"date_created": {"type":"Date","default":Date.now}
+});
+
 //Create an events definition schema which will be used to create events definition collection for the current project
 var EventsSchema = new mongoose.Schema({
 	"collection_name":"String",
@@ -62,6 +82,7 @@ var VideosUploadedSchema = new mongoose.Schema({
 	"file_size":"Number"	//In megabytes
 });
 
+//Create schema for videos converted in /public/Videos Converted
 var VideosConvertedSchema = new mongoose.Schema({
 	"video_name":"String",
 	"path": "String",
@@ -73,16 +94,32 @@ var VideosConvertedSchema = new mongoose.Schema({
 	"codec":"String"
 });
 
+var TagsSchema = new mongoose.Schema({
+	"tag_name":{"type":"String", "unique":true},
+	"event_name":"String",
+	"collection_name":"String",
+	"project_name":"String",
+	"video_name":"String",
+	"video_path":"String",
+	"start_time":"Number",
+	"end_time":"Number",
+	"date_created": {"type":"Date","default":Date.now}
+});
 
+
+//Create collections using schemas that we just defined
 var ProjectsCollection = mongoose.model('projects', ProjectsSchema);
 var CollectionsCollection = mongoose.model('collections',CollectionsSchema);
+var ProjectCollectionsCollection = mongoose.model('project_collections', ProjectCollectionsSchema);
 var EventsCollection = mongoose.model('events',EventsSchema);
 var VideosUploadedCollection = mongoose.model('videos_uploaded', VideosUploadedSchema);
 var VideosConvertedCollection = mongoose.model('videos',VideosConvertedSchema);
+var TagsCollection = mongoose.model('tags',TagsSchema);
 
 // middleware ==============================================
 //Database middleware
 
+//Projects Manager Middleware
 //CRUD for projects
 //READ: Get projects from projects table in database
 app.use('/getprojects',function (req,res) {
@@ -95,7 +132,54 @@ app.use('/getprojects',function (req,res) {
 
 });
 
+app.use('/getcurrentproject',bodyParser.json(), function (req,res) {
+	ProjectsCollection.find({"name":req.body.project_name}, function (err,project) {
+		if (err) res.send([{"name":"Error fetching project. Error message: "+err}])
+		else res.send(project);
+	});
+})
+
 //CREATE: Add a new project
+
+app.use('/copycollectiontoproject', bodyParser.json(), function (req,res) {
+	console.log("Copying collection");
+	//Let's create a collection with the same name inside project collection table, with date appended
+	var projectCollectionName = req.body.collection_name + Date.now();
+	console.log('new pc name', projectCollectionName);
+	var newProjectCollection = new ProjectCollectionsCollection ({"name": projectCollectionName});
+	newProjectCollection.save();
+
+	//Now create new events in the events collection that will be linked to this new project collection
+	//First find all events
+	var eventsToCopy;
+	EventsCollection.find({"collection_name":req.body.collection_name}, function (err,events) {
+		eventsToCopy = events;
+		console.log('eventsToCopy',eventsToCopy);
+		//Now copy each event and change the collection name to the new projectCollectionName
+		var newEvent;
+		var copiedEvents = [];
+		var idx = 0;
+		for (idx = 0; idx<eventsToCopy.length; idx++) {
+			console.log("currentEvent", eventsToCopy[idx]);
+
+			//Create new event
+			newEvent = {"collection_name":projectCollectionName,
+				"event_name":eventsToCopy[idx].event_name,
+				"lead_time":eventsToCopy[idx].lead_time,
+				"lag_time":eventsToCopy[idx].lag_time
+			};
+			//Add the event to array
+			copiedEvents.push(newEvent);
+		}
+
+		//Insert this array of documents (events) into EventsCollection
+		EventsCollection.create(copiedEvents, function (err,successfullyCopied) {
+			console.log("Events to copy", eventsToCopy.length, "Successfully copied", successfullyCopied);
+			res.send({"project_collection":projectCollectionName});
+		});
+	});
+});
+
 app.use ('/addproject', bodyParser.json(), function (req,res) {
 	var projectName = req.body.projectName;
  	var newProject = new ProjectsCollection({
@@ -118,16 +202,67 @@ app.use ('/addproject', bodyParser.json(), function (req,res) {
 	});
 });
 
+//UPDATE: Update project
+app.use('/updateproject', bodyParser.json(), function (req,res) {
+	ProjectsCollection.update({ "name": req.body.project_name},
+	 { "date_played": req.body.date_played,
+	  "local_team":req.body.local_team,
+	  "opposition_team":req.body.opposition_team,
+	  "season":req.body.season,
+	  "competition":req.body.competition,
+	  "local_team_score":req.body.local_team_score,
+	  "opposition_team_score":req.body.opposition_team_score,
+	  "video":req.body.video
+	},
+	   function (err, numberAffected, raw_response) {
+		  if (err) res.send({"success":false, "error":err});
+		  else {		  	
+		  	res.send({"success":true})
+		  }
+	});
+})
+
 //DELETE: Delete a project
 app.use('/deleteproject', bodyParser.json(), function (req,res) {
 	var projectName = req.body.projectName;
-	ProjectsCollection.remove({'name':projectName},function (err) {
+	var projectCollection;
+
+	//Get the name of the collection linked to the project, delete the collection and its events, project tags and finally the project.
+	ProjectsCollection.find({'name':projectName}, function (err, projectObject) {
+		console.log("Found project", projectObject,"err",err);
 		if (err) res.send({"success":false,"error":err});
-		else res.send({"success":true});
+		else {
+			projectCollection = projectObject[0].collection_name;
+			console.log("project collection", projectCollection);
+			//Delete the collection
+			ProjectCollectionsCollection.remove({'name':projectCollection}, function (err) {
+				console.log("Collection removed!");
+				if (err) res.send({"success":false, "error":err});
+				else {
+					//Delete the events in the collection
+					EventsCollection.remove({'collection_name':projectCollection}, function (err) {
+						console.log("Events removed");
+						if (err) res.send({"success":false, "error":err});
+						else {
+							//Delete tags
+							TagsCollection.remove({"project_name":projectName}, function (err) {
+								if (err) res.send({"success":false,"error":err});
+								//Now finally delete the project
+								console.log("Deleting project");
+								ProjectsCollection.remove({'name': projectName}, function (err) {
+									if (err) res.send({"success":false, "error":err});
+									else res.send({"success":true});
+								});
+							});
+						}
+					});
+				}
+			});
+		}
 	});
+});
 
-})
-
+//Collections Manager Middleware
 //CR(U)D for collections: No update required as this will be done through events CRUD
 //CREATE: Add a new collection
 app.use('/addcollection', bodyParser.json(), function (req,res) {
@@ -164,6 +299,7 @@ app.use('/deletecollection',bodyParser.json(),function (req,res) {
 
 })
 
+//Events Manager Middleware
 //CRUD for events
 //Get events for a collection
 
@@ -182,6 +318,7 @@ app.use('/addevent', bodyParser.json(), function (req,res) {
 
 //READ: Get all events for the selected collection
 app.use('/getevents',bodyParser.json(), function (req,res) {
+	console.log("getting events for",req.body.collectionName);
 	var collectionName = req.body.collectionName;
 	EventsCollection.find({"collection_name":collectionName}, function (err,events) {
 		if (err) res.send([{"name":"Error fetching events for this collection. Error message: "+err}])
@@ -207,6 +344,8 @@ app.use('/deleteevent',bodyParser.json(),function (req,res) {
 		else res.send({"success":true});
 	});
 })
+
+//Video Manager middleware
 
 //Create global variable for file name of video
 var newFileName;
@@ -234,8 +373,6 @@ onFileUploadComplete: function (file,request,response) {
   response.send([fileName,uploadPath]);
 }
 }));
-
-//Video manager middleware including fluent-FFMPEG middleware
 
 //Function gets the metadata (using ffprobe) of a video file passed to it, and then returns the metadata object
 app.use('/getVideoMetaData',bodyParser.json(), function (request,response,next) {
@@ -266,7 +403,7 @@ app.use('/convert',bodyParser.json(), function (request,response,next) {
 });
 
 
-//CRUD for Video Manager
+//CRUD for Video Manager - Middleware
 
 //CREATE: Adds video that has been converted to the videos collection in flowbase MongoDB
 app.use('/addconvertedvideo', bodyParser.json(), function (request, response,next) {
@@ -333,19 +470,55 @@ app.use('/deletevideo', bodyParser.json(), function (request, response) {
   	});
 });
 
-// set the static files location /public/img will be /img for users
-app.use(express.static(__dirname + '/public')); 
-//app.use('/Video Uploads',express.static(__dirname + '/Video Uploads')); 
+//POST response when /getvideopath is sent from front end with name of video, video path is fetched from the converted videos table
+app.use('/getvideopath', bodyParser.json(),function (request,response) {
+	console.log("Express is getting video path for "+request.body.video_name);
+	VideosConvertedCollection.find({"video_name":request.body.video_name},function (err,video_data) {
+		console.log("Fetched path..."+video_data[0].path);
+		if (err) response.send("Error fetching video path from database.");
+		else response.send({"success":true, "path":video_data[0].path});
+	});
+})
 
-// routes ==================================================
-require('./app/routes')(app); // configure our routes
+//CRUD for Tags collection
 
-// start app ===============================================
-// startup our app at http://localhost:3000
-app.listen(port);               
+//Add tag
+app.use('/addtag',bodyParser.json(), function (request,response) {
+		//Create document for collection
+	var newTag = new TagsCollection({
+		"tag_name":request.body.tag_name,
+		"event_name":request.body.event_name,
+		"collection_name":request.body.collection_name,
+		"project_name":request.body.project_name,
+		"video_name":request.body.video_name,
+		"video_path":request.body.video_path,
+		"start_time":request.body.start_time,
+		"end_time":request.body.end_time,
+	});
 
-// shoutout to the user                     
-console.log('Magic happens on port ' + port);
+	//Save the document to the database
+	newTag.save(function (err) {
+		if (err) response.send({"success":false,"error":err})
+		else response.send({"success":true});
+	});
+})
 
-// expose app           
+//Get all tags for a project and return the object
+app.use('/getprojecttags',bodyParser.json(), function (request, response) {
+	TagsCollection.find({"project_name":request.body.project_name}, function (err,tags) {
+		console.log("Express has fetched tag object..."+tags);
+		if (err) response.send({"success":false, "error":"Error fetching tags for this project: "+err});
+		else response.send({"success":true, "tagsObject":tags});
+	});
+});
+
+//Delete tag
+app.use('/deletetag',bodyParser.json(), function (request, response) {
+	TagsCollection.remove({"tag_name":request.body.tag_name}, function(err) {
+		if (err) response.send({"success":false, "error":"Error deleting tag."+err});
+		else response.send({"success":true});
+	});
+});
+
+// Expose app so that server.js can be required by other modules        
 exports = module.exports = app;     

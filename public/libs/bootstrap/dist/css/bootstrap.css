@@ -1281,7 +1281,7 @@ p {
 }
 .lead {
   margin-bottom: 20px;
-  font-size: 16px;
+  font-size: 21px;
   font-weight: 300;
   line-height: 1.4;
 }
@@ -4873,7 +4873,8 @@ a.badge:focus {
   }
   .jumbotron h1,
   .jumbotron .h1 {
-    font-size: 63px;
+    font-size: 25px;
+    font-weight: bold;
   }
 }
 .thumbnail {
