@@ -1,4 +1,4 @@
-<div class="container" id="ProjectTab" ng-controller="ProjectCtrl as project">		
+<div class="container-fluid" id="ProjectTab" ng-controller="ProjectCtrl as project">		
   	<div class="jumbotron" id="ProjectBox">
         <h1>Project Manager</h1>
         <p class="lead">Manage exisiting projects or create a new project.</p>
@@ -11,8 +11,12 @@
             </select>  
             <p>
             <div class="row">
-                <div class="col-md-4"><button class="btn btn-block btn-success btn-lg" role="button" ng-disabled="true">Open (Video Analysis Mode)</button></div>
-                <div class="col-md-4"><button class="btn btn-block btn-warning btn-lg" role="button" ng-disabled="true">Edit</button></div>
+                <div class="col-md-4"><button class="btn btn-block btn-success btn-lg" role="button" ng-click="tabs.currentTab=4">Open in Capture Mode</button></div>
+                <div class="col-md-4">
+                    <button class="btn btn-block btn-warning btn-lg" role="button" data-toggle="modal" data-target="#EditProjectModal">
+                        Edit
+                    </button>
+                </div>
                 <div class="col-md-4">
                     <button class="btn btn-block btn-danger btn-lg" role="button" data-toggle="modal" data-target="#ProjectDeleteConfirmationModal">
                         <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
@@ -68,7 +72,7 @@
 
             <div class="row">
                 <div class="col-md-12">
-                    <label for="collectionsDropDown">Select collection of events to use for this project:</label>
+                    <label for="collectionsDropDown">Select event template to use for this project:</label>
                 </div>
             </div>
             
@@ -79,11 +83,11 @@
                     </select>
                 </div>
                 <div class="col-md-8" ng-show="project.collectionList.length==0">
-                    <h4 class="text-warning">No exisiting collections. Create one in Collection Manager.</h3>
+                    <h4 class="text-warning">No exisiting event templates. Create one in Events Template Manager.</h3>
                 </div>
                 <div class="col-md-4">
                     <button class="btn btn-warning " role="button" ng-click="tabs.currentTab=2">
-                        <span class="glyphicon glyphicon-open-file" aria-hidden="true"></span><strong> Collection Manager</strong>
+                        <span class="glyphicon glyphicon-open-file" aria-hidden="true"></span><strong> Events Template Manager</strong>
                     </button>
                 </div>
             </div>
@@ -128,6 +132,8 @@
             </p>
         </form>
 
+        <project-modals></project-modals>
+
         <!--Modal to confirm deletion of project -->
         <div class="modal fade" id="ProjectDeleteConfirmationModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
           <div class="modal-dialog modal-sm">
@@ -146,7 +152,7 @@
                     </div>
                 </p>
                 <p ng-show="project.projectDeletedResult==false">
-                    Are you sure you want to delete project "{{project.projectSelected}}"? No collections or events will be affected.
+                    Are you sure you want to delete project "{{project.projectSelected}}"? All tags and events inside the project will also be deleted.
                 </p>
               </div>
               <div class="modal-footer">
