@@ -9,5 +9,8 @@
     "mongodb": "^2.0.24",
     "mongoose": "^4.0.0",
     "multer": "^0.1.8"
+  },
+  "devDependencies": {
+    "grunt-shell-spawn": "^0.3.8"
   }
 }
