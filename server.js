@@ -383,24 +383,46 @@ app.use('/getVideoMetaData',bodyParser.json(), function (request,response,next) 
 	}); 	
 });
 
+//Function to check if a folder exists, otherwise create it
+function ensureExists(path, mask, cb) {
+    if (typeof mask == 'function') { // allow the `mask` parameter to be optional
+        cb = mask;
+        mask = 0777;
+    }
+    fs.mkdir(path, mask, function(err) {
+        if (err) {
+            if (err.code == 'EEXIST') cb(null); // ignore the error if the folder already exists
+            else cb(err); // something else went wrong
+        } else cb(null); // successfully created folder
+    });
+}
+
 //Converts video using ffmpeg
 app.use('/convert',bodyParser.json(), function (request,response,next) {
 	var fileName = request.body.fileName;
 	var filePath = request.body.filePath;
 	var newVideoName = fileName.split('.')[0]+Date.now()+'.mp4'; //MR is for Maxflow Ready
 	var savePath = 'public/Videos Converted/'+newVideoName;
-	var format = 'mp4';
+	ensureExists('public/Videos Converted/', 0744, function(err) {
+	    if (err) console.log("Count not create folder ",err); // handle folder creation error
+	    else {
+			console.log("Folder successfully created or already exists - no error");// we're all good
+			var format = 'mp4';
+			var convertedVideo = ffmpeg(filePath)
+		    .fps(request.body.framerate)
+		    .size(request.body.resolution)
+		    .autopad()
+		    .format(format)
+		    .on('end', function() { response.send({"success":true, "video_name":newVideoName, "saved_path":savePath});})
+		    .on('error',function(error) {response.send({"success":false, "error":error.message});})	
+		    .on('progress', function(progress) { console.log('Processing: ' + progress.percent + '% done');})
+		    .save(savePath);
+		}
+	});
 
-	var convertedVideo = ffmpeg(filePath)
-	    .fps(request.body.framerate)
-	    .size(request.body.resolution)
-	    .autopad()
-	    .format(format)
-	    .on('end', function() { response.send({"success":true, "video_name":newVideoName, "saved_path":savePath});})
-	    .on('error',function(error) {response.send({"success":false, "error":error.message});})	
-	    .on('progress', function(progress) { console.log('Processing: ' + progress.percent + '% done');})
-	    .save(savePath);
 });
+
+
 
 
 //CRUD for Video Manager - Middleware
