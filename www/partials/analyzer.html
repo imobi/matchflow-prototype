@@ -57,173 +57,229 @@
                 <table>
                     <tr>
                         <td colspan="2">
-                    <tag-line counter="timestamp" tagslist="currentProjectConfiguration.tags" playstatus="play" ></tag-line>
-                    </td>
+                            <tag-line counter="timestamp" tagslist="currentProjectConfiguration.tags" playstatus="play" ></tag-line>
+                        </td>
                     </tr>
                     <tr>
                         <td>
-                    <tag-holder datalist="currentProjectConfiguration.selectedTemplate"></tag-holder>
-                    </td>
-                    <td>
-                    <template-list datalist="user.tagTemplateList" selectedtemplate="currentProjectConfiguration.selectedTemplate"></template-list>
-                    </td>
+                            <tag-holder datalist="currentProjectConfiguration.selectedTemplate"></tag-holder>
+                        </td>
+                        <td>
+                            <template-list datalist="user.tagTemplateList" selectedtemplate="currentProjectConfiguration.selectedTemplate"></template-list>
+                        </td>
                     </tr>
                 </table>
             </div>
 
         </div>
 
+        <div class="modal fade" id="newProjectDetails" tabindex="-1" role="dialog" aria-labelledby="newProjectDetailsTitle" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title" id="newProjectDetailsTitle">Enter New Project Details</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <div class="input-group">
+                                <span class="input-group-addon">Project Name:</span>
+                                <input type="text" ng-model="newProject.name" class="form-control"/>
+                            </div>
+                            <div class="input-group">
+                                <span class="input-group-addon">Category:</span>
+                                <select ng-model="newProject.selectedCategory" ng-options="c.name for c in user.categoryList" class="form-control"></select>
+                            </div>
+                            <div class="input-group">
+                                <span class="input-group-addon">Team:</span>
+                                <select ng-model="newProject.selectedTeam" ng-options="t.name for t in user.teamList" class="form-control"></select>
+                            </div>
+                            <div class="input-group">
+                                <span class="input-group-addon">Season:</span>
+                                <select ng-model="newProject.selectedSeason" ng-options="s.name for s in user.seasonList" class="form-control"></select>
+                            </div>
+                            <div class="input-group">
+                                <span class="input-group-addon">Game Date:</span>
+                                <input type="date" ng-model="newProject.selectedGameDate" class="form-control"/>
+                            </div>
+                            <div class="input-group">
+                                <span class="input-group-addon">Default Tag Template:</span>
+                                <select ng-model="newProject.defaultTemplate" ng-options="t.name for t in user.tagTemplateList" class="form-control"></select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-danger" ng-click="returnToDashboard('newProjectDetails')">Back</button>
+                        <button type="button" class="btn btn-primary" ng-click="createNewProject()">Create</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="modal fade" id="editProjectDetails" tabindex="-1" role="dialog" aria-labelledby="editProjectDetailsTitle" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title" id="editProjectDetailsTitle">Edit Project Details</h4>
+                    </div>
+                    <div class="modal-body">
+                        <table>
+                            <tr>
+                                <td>
+                                    Project Name:
+                                </td>
+                                <td>
+                                    <input type="text" ng-model="currentProjectConfiguration.name" disabled />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    Category:
+                                </td>
+                                <td>
+                                    <select ng-model="editCurrentProject.selectedCategory" ng-options="c.name for c in user.categoryList"></select>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    Team:
+                                </td>
+                                <td>
+                                    <select ng-model="editCurrentProject.selectedTeam" ng-options="t.name for t in user.teamList"></select>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    Season:
+                                </td>
+                                <td>
+                                    <select ng-model="editCurrentProject.selectedSeason" ng-options="s.name for s in user.seasonList"></select>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    Game Date:
+                                </td>
+                                <td style="white-space: nowrap;">
+                                    <input class="gameDate" type="text" ng-model="editCurrentProject.selectedGameDate" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    Default Tag Template:
+                                </td>
+                                <td>
+                                    <select ng-model="editCurrentProject.defaultTemplate" ng-options="t.name for t in user.tagTemplateList"></select>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        <!--<button type="button" class="btn btn-primary" onclick="login()">Sign In</button>-->
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+
+        <div class="modal fade" id="configureCategories" tabindex="-1" role="dialog" aria-labelledby="configureCategoriesTitle" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title" id="configureCategoriesTitle">Configure Categories</h4>
+                    </div>
+                    <div class="modal-body">
+                        <p class="dialog-info-text">
+                            Add/Remove Categories by using the table below:
+                        </p>
+                        <category-list datalist="manageCategories.categoryList" />
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        <!--<button type="button" class="btn btn-primary" onclick="login()">Sign In</button>-->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+                        
+        <div class="modal fade" id="editProjectDetails" tabindex="-1" role="dialog" aria-labelledby="editProjectDetailsTitle" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title" id="editProjectDetailsTitle">Edit Project Details</h4>
+                    </div>
+                    <div class="modal-body">
+        <!--<div id="configureTeams" title="Configure Teams">-->
+                        <p class="dialog-info-text">
+                            Add/Remove Teams by using the table below:
+                        </p>
+                        <team-list datalist="manageTeams.teamList" />
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        <!--<button type="button" class="btn btn-primary" onclick="login()">Sign In</button>-->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="editProjectDetails" tabindex="-1" role="dialog" aria-labelledby="editProjectDetailsTitle" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title" id="editProjectDetailsTitle">Edit Project Details</h4>
+                    </div>
+                    <div class="modal-body">
+        <!--<div id="configureSeasons" title="Configure Seasons">-->
+                        <p class="dialog-info-text">
+                            Add/Remove Seasons by using the table below:
+                        </p>
+                        <season-list datalist="manageSeasons.seasonList" />
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        <!--<button type="button" class="btn btn-primary" onclick="login()">Sign In</button>-->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="createNewTag" tabindex="-1" role="dialog" aria-labelledby="createNewTagTitle" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title" id="createNewTagTitle">Create New Tag</h4>
+                    </div>
+                    <div class="modal-body">
+                        <p class="dialog-info-text">
+                            Enter new tag name below:
+                        </p>
+                        <table>
+                            <tr>
+                                <td>Name:</td>
+                                <td><input type="text" ng-model="manageTags.tagToAdd.name" /></td>
+                            </tr>
+                            <tr>
+                                <td>Before:</td>
+                                <td><input type="text" ng-model="manageTags.tagToAdd.before" /></td>
+                            </tr>
+                            <tr>
+                                <td>After:</td>
+                                <td><input type="text" ng-model="manageTags.tagToAdd.after" /></td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        <!--<button type="button" class="btn btn-primary">Sign In</button>-->
+                    </div>
+                </div>
+            </div>
+        </div>
+
 <!--         DIALOGS 
-
-        <div id="newProjectDetails" title="Enter New Project Details">
-            <table>
-                <tr>
-                    <td>
-                        Project Name:
-                    </td>
-                    <td>
-                        <input type="text" ng-model="newProject.name" />
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        Category:
-                    </td>
-                    <td>
-                        <select ng-model="newProject.selectedCategory" ng-options="c.name for c in user.categoryList"></select>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        Team:
-                    </td>
-                    <td>
-                        <select ng-model="newProject.selectedTeam" ng-options="t.name for t in user.teamList"></select>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        Season:
-                    </td>
-                    <td>
-                        <select ng-model="newProject.selectedSeason" ng-options="s.name for s in user.seasonList"></select>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        Game Date:
-                    </td>
-                    <td style="white-space: nowrap;">
-                        <input class="gameDate" type="text" ng-model="newProject.selectedGameDate" />
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        Default Tag Template:
-                    </td>
-                    <td>
-                        <select ng-model="newProject.defaultTemplate" ng-options="t.name for t in user.tagTemplateList"></select>
-                    </td>
-                </tr>
-            </table>
-        </div>
-
-        <div id="editProjectDetails" title="Edit Project Details">
-            <table>
-                <tr>
-                    <td>
-                        Project Name:
-                    </td>
-                    <td>
-                        <input type="text" ng-model="currentProjectConfiguration.name" disabled />
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        Category:
-                    </td>
-                    <td>
-                        <select ng-model="editCurrentProject.selectedCategory" ng-options="c.name for c in user.categoryList"></select>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        Team:
-                    </td>
-                    <td>
-                        <select ng-model="editCurrentProject.selectedTeam" ng-options="t.name for t in user.teamList"></select>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        Season:
-                    </td>
-                    <td>
-                        <select ng-model="editCurrentProject.selectedSeason" ng-options="s.name for s in user.seasonList"></select>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        Game Date:
-                    </td>
-                    <td style="white-space: nowrap;">
-                        <input class="gameDate" type="text" ng-model="editCurrentProject.selectedGameDate" />
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        Default Tag Template:
-                    </td>
-                    <td>
-                        <select ng-model="editCurrentProject.defaultTemplate" ng-options="t.name for t in user.tagTemplateList"></select>
-                    </td>
-                </tr>
-            </table>
-        </div>
-
-        <div id="configureCategories" title="Configure Categories">
-            <p class="dialog-info-text">
-                Add/Remove Categories by using the table below:
-            </p>
-            <category-list datalist="manageCategories.categoryList" />
-        </div>
-
-        <div id="configureTeams" title="Configure Teams">
-            <p class="dialog-info-text">
-                Add/Remove Teams by using the table below:
-            </p>
-            <team-list datalist="manageTeams.teamList" />
-        </div>
-
-        <div id="configureSeasons" title="Configure Seasons">
-            <p class="dialog-info-text">
-                Add/Remove Seasons by using the table below:
-            </p>
-            <season-list datalist="manageSeasons.seasonList" />
-        </div>
-
-        <div id="createNewTag" title="Create New Tag">
-            <p class="dialog-info-text">
-                Enter new tag name below:
-            </p>
-            <table>
-                <tr>
-                    <td>Name:</td>
-                    <td><input type="text" ng-model="manageTags.tagToAdd.name" /></td>
-                </tr>
-                <tr>
-                    <td>Before:</td>
-                    <td><input type="text" ng-model="manageTags.tagToAdd.before" /></td>
-                </tr>
-                <tr>
-                    <td>After:</td>
-                    <td><input type="text" ng-model="manageTags.tagToAdd.after" /></td>
-                </tr>
-            </table>
-
-        </div>-->
-
-        <!--            <div id="createNewTemplate" title="Create New Template">
+            <div id="createNewTemplate" title="Create New Template">
                         
                     </div>-->
 

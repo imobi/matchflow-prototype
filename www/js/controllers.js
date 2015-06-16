@@ -50,7 +50,15 @@ angular.module('matchflow.controllers', [])
         };
     }]).controller('DashboardController', ['$scope', function ($scope) {
 
-    }]).controller('AnalyzerController', ['$scope', '$compile', '$http', '$location', function ($scope, $compile, $http, $location) {
+    }]).controller('AnalyzerController', ['$scope', '$compile', '$http', '$location', '$route', '$timeout', function ($scope, $compile, $http, $location, $route, $timeout) {
+        // we expecting a project ID in the URL
+        var projectID = $route.current.params['pid'];
+        if (projectID !== undefined) { // if there is one, load that project
+            // we need to make a REST call to load the project, if it fails post the appropriate message
+            // TODO
+        } else { // else open the create project popup
+            angular.element('#newProjectDetails').modal('show');
+        }
         $scope.replaceAll = function (str, find, replace) {
             return str.replace(new RegExp(find, 'g'), replace);
         };
@@ -273,6 +281,41 @@ angular.module('matchflow.controllers', [])
                 };
             }
         };
+        // DIALOG FUNCTIONS
+        $scope.createNewProject = function() {
+            if ($scope.newProject.name && $scope.newProject.name.length > 0 &&
+                    $scope.newProject.selectedCategory && $scope.newProject.selectedCategory.name && $scope.newProject.selectedCategory.name.length > 0 &&
+                    $scope.newProject.selectedTeam && $scope.newProject.selectedTeam.name && $scope.newProject.selectedTeam.name.length > 0 &&
+                    $scope.newProject.selectedSeason && $scope.newProject.selectedSeason.name && $scope.newProject.selectedSeason.name.length > 0 &&
+                    $scope.newProject.defaultTemplate && $scope.newProject.defaultTemplate.name && $scope.newProject.defaultTemplate.name.length > 0) {
+                $scope.currentProjectConfiguration.name = $scope.newProject.name;
+                $scope.currentProjectConfiguration.id = $scope.replaceAll($scope.newProject.name, ' ', '_');
+                $scope.currentProjectConfiguration.selectedCategory = $scope.newProject.selectedCategory;
+                $scope.currentProjectConfiguration.selectedTeam = $scope.newProject.selectedTeam;
+                $scope.currentProjectConfiguration.selectedSeason = $scope.newProject.selectedSeason;
+                $scope.currentProjectConfiguration.defaultTemplate = $scope.newProject.defaultTemplate;
+                $scope.currentProjectConfiguration.selectedTemplate = $scope.currentProjectConfiguration.defaultTemplate;
+                $scope.currentProjectConfiguration.selectedGameDate = $scope.newProject.selectedGameDate;
+                angular.element('#newProjectDetails').modal('hide');
+                $scope.newProject = {
+                    name: '',
+                    selectedCategory: $scope.user.categoryList[0],
+                    selectedTeam: $scope.user.teamList[0],
+                    selectedSeason: $scope.user.seasonList[0],
+                    selectedGameDate: '',
+                    defaultTemplate: $scope.user.tagTemplateList[0]
+                };
+            } else {
+                // TODO form field validation
+            }
+        };
+        $scope.returnToDashboard = function(dialogId) {
+            angular.element('#'+dialogId).modal('hide');
+            $timeout(function() {
+                $location.url('/dashboard');
+            },300);
+        };
+        
         // JQUERY UI
         $(document).ready(function () {
             // Or from within a configuration:

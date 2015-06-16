@@ -26,7 +26,7 @@
             <div class="container">
                 <div class="navbar-header">
                     <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-main-collapse">
-                        <i class="fa fa-bars"></i>
+                        <i class="glyphicon custom glyphicon-menu-hamburger"></i>
                     </button>
                     <a class="navbar-brand page-scroll navbar-btn" href="#page-top">
                         <img src="img/mainlogo_small.png" alt="matchflow">
@@ -35,7 +35,7 @@
 
                 <!-- Collect the nav links, forms, and other content for toggling -->
                 <div class="collapse navbar-collapse navbar-right navbar-main-collapse">
-                    <ul class="nav navbar-nav">
+                    <ul class="nav navbar-nav nav-custom">
                         <!-- Hidden li included to remove active class from about link when scrolled up past about section -->
                         <li class="hidden">
                             <a href="#page-top"></a>
@@ -53,10 +53,10 @@
                             <a class="btn page-scroll navbar-btn" href="#contact">Contact</a>
                         </li>
                         <li class="nav-padding">
-                            <a class="btn btn-info navbar-btn" data-toggle="modal" data-target="#signInModal">Sign In</a>
+                            <input type="button" class="btn btn-primary btn-lg navbar-btn" data-toggle="modal" data-target="#signInModal" value="Sign In" />
                         </li>
                         <li class="nav-padding">
-                            <a class="btn btn-danger navbar-btn">Register</a>
+                            <input type="button" class="btn btn-danger btn-lg navbar-btn" value="Register" />
                         </li>
                     </ul>
                 </div>
@@ -161,12 +161,14 @@
                         <h4 class="modal-title" id="signInModalLabel">Sign In</h4>
                     </div>
                     <div class="modal-body">
-                        <input type="text" id="userLogin" placeholder="email" /><br/>
-                        <input type="password" id="userLogin" placeholder="password" />
+                        <div class="form-group">
+                            <input type="text" id="userLogin" placeholder="email" class="form-control"/><br/>
+                            <input type="password" id="userLogin" placeholder="password" class="form-control"/>
+                        </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-                        <button type="button" class="btn btn-primary" onclick="login()">Sign In</button>
+                        <button class="btn btn-danger" data-dismiss="modal">Cancel</button>
+                        <button class="btn btn-primary" onclick="login()">Sign In</button>
                     </div>
                 </div>
             </div>
