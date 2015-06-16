@@ -1,0 +1,206 @@
+.main-content-top {
+    margin-top: 100px;
+}
+
+.drag-and-drop-area-border {
+    border: 1px solid #AAA; 
+    border-radius:5px;
+    margin-bottom:10px;
+    width:640px; 
+    height:480px;
+}
+
+#videoPlayer {
+    background:black; 
+    width:640px; 
+    height:480px;
+    margin-bottom:10px;
+}
+
+.dropzone {
+    height: 480px;
+    padding: 0px;
+}
+
+.info-text-title {
+    font-family: arial;
+    font-size: 20px;
+    font-weight: bold;
+    text-shadow: 1px 1px #777;
+    color: #000;
+}
+
+.info-text {
+    font-family: arial;
+    font-size: 20px;
+    font-weight: bold;
+    color: #006dcc;
+    padding-right: 10px;
+}
+
+.dialog-info-text {
+    font-family: arial;
+    font-size: 15px;
+    font-weight: bold;
+    color: #006dcc;
+    padding-right: 10px;
+}
+
+.no-close .ui-dialog-titlebar-close {
+  display: none;
+}
+
+.ui-datepicker-trigger {
+    margin-top:-10px;
+}
+
+.input-modifier {
+    margin-bottom: 0px !important;
+}
+
+.tag {
+    background-color: #006dcc;
+    padding: 0px 2px 1px 10px;
+    color: #FFF;
+    font-weight: bold;
+    min-width: 50px;
+    text-align: center;
+    line-height: 25px;
+    border-radius:5px;
+    text-shadow: #333 0px 1px 3px;
+    cursor: pointer;
+}
+
+.tag-line-container {
+    position:relative; 
+    width:815px; 
+    height:100px; 
+    overflow:hidden; 
+    background-color:white; 
+    border: 1px solid #AAA; 
+    border-radius:5px;
+    margin-bottom: 10px;
+}
+
+.remove-button {
+    font-weight: bold;
+    margin-left: 10px;
+    cursor: pointer;
+}
+
+.draggable-tag {
+    position: absolute;
+    background-color: #006dcc;
+    color: #FFF;
+    font-weight: bold;
+    text-align: center;
+    overflow: hidden;
+    white-space: nowrap;
+    z-index: 100;
+    border-radius:5px;
+    text-shadow: #333 0px 1px 3px;
+    cursor: pointer;
+}
+
+.time-indicator {
+    position: absolute;
+    font-weight: normal;
+    color: #777;
+    z-index: 0;
+    font-size: 10px;
+}
+
+.tag-holder {
+    border: 1px solid #AAA;
+    background-color: white;
+    border-radius: 5px;
+    padding:0px;
+    width:550px;
+    height: 180px;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.inner-template-table {
+    width:100%; 
+    padding-right:5px;
+}
+
+.normal-template {
+    background-color: #AAA;
+    color: white;
+    font-weight: bold;
+    margin-left: -3px;
+    padding-left: 5px;
+    border: 1px solid #AAA;
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+    text-shadow: #333 1px 2px 3px;
+    cursor: pointer;
+}
+
+.selected-template {
+    background-color: #777;
+    color: white;
+    font-weight: bold;
+    margin-left: -3px;
+    padding-left: 5px;
+    border: 1px solid #777;
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+    text-shadow: #333 0px 1px 3px;
+    cursor: pointer;
+}
+
+ul.mf-notes {
+    list-style: none;
+    padding-left: 0px;
+}
+ul.mf-notes > li {
+    padding: 10px 15px;
+    background-color: grey;
+    border-radius: 5px;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #FFF;
+    text-shadow: #333 0px 1px 3px;
+}
+ul.mf-notes > li.critical {
+    background-color: #AA0000;
+    
+    -webkit-animation-name: pulse;
+    -moz-animation-name: pulse;
+    -webkit-animation-duration: 1.5s;
+    -moz-animation-duration: 1.5s;
+    -webkit-animation-iteration-count: infinite;
+    -moz-animation-iteration-count: infinite;
+    -webkit-animation-timing-function: linear;
+    -moz-animation-timing-function: linear;
+}
+ul.mf-notes > li.critical:hover {
+    -webkit-transition-property: -webkit-transform;
+    -webkit-transition-duration: 1s;
+    -moz-transition-property: -moz-transform;
+    -moz-transition-duration: 1s;
+    -webkit-animation-iteration-count: 1;
+    -moz-animation-iteration-count: 1;
+}
+@-webkit-keyframes pulse {    
+    0% { -webkit-transform: scale(1); transform: scale(1); }
+    50% { -webkit-transform: scale(1.01); transform: scale(1.02); }
+    100% { -webkit-transform: scale(1); transform: scale(1); }
+}
+@-moz-keyframes pulse {    
+    0% { -moz-transform: scale(1); transform: scale(1); }
+    50% { -moz-transform: scale(1.01); transform: scale(1.02); }
+    100% { -moz-transform: scale(1); transform: scale(1); }
+}
+ul.mf-notes > li.success {
+    background-color: #00AA00;
+}
+ul.mf-notes > li.warning {
+    background-color: #FFAA00;
+}
+ul.mf-notes > li.info {
+    background-color: #006dcc;
+}

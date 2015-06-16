@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" ng-app="matchflow">
+<html lang="en">
     <head>
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -7,13 +7,9 @@
         <meta name="description" content="Matchflow video analysis and performance management platform">
         <meta name="author" content="Keir Timm, Samir Franciscus, Kimeshan Naidoo">
         <title>Match Flow</title>
-        <link rel="stylesheet" href="css/theme-default.css">
         <link rel="stylesheet" href="css/bootstrap.css">
-
-        <!-- Custom Fonts -->
-        <link href="font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
-        <link href="http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" rel="stylesheet" type="text/css">
-        <link href="http://fonts.googleapis.com/css?family=Montserrat:400,700" rel="stylesheet" type="text/css">
+        <link rel="stylesheet" href="css/theme-shared.css">
+        <link rel="stylesheet" href="css/theme-dashboard.css">
 
         <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
         <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -23,7 +19,7 @@
         <![endif]-->
 
     </head>
-    <body ng-controller="MainController" id="page-top" data-spy="scroll" data-target=".navbar-fixed-top">
+    <body id="page-top" data-spy="scroll" data-target=".navbar-fixed-top">
 
         <!-- Navigation -->
         <nav class="navbar navbar-custom navbar-fixed-top" role="navigation">
@@ -57,7 +53,7 @@
                             <a class="btn page-scroll navbar-btn" href="#contact">Contact</a>
                         </li>
                         <li class="nav-padding">
-                            <a class="btn btn-info navbar-btn">Sign In</a>
+                            <a class="btn btn-info navbar-btn" data-toggle="modal" data-target="#signInModal">Sign In</a>
                         </li>
                         <li class="nav-padding">
                             <a class="btn btn-danger navbar-btn">Register</a>
@@ -78,7 +74,7 @@
                             <div class="main-logo"></div>
                             <p class="intro-text">A free to use video crowdsourcing analysis platform.<br>Get your match on!</p>
                             <a href="#about" class="btn btn-circle page-scroll">
-                                <i class="fa fa-angle-double-down animated"></i>
+                                <b class="fa fa-angle-double-down animated">V</b>
                             </a>
                         </div>
                     </div>
@@ -111,7 +107,7 @@
                 </div>
             </div>
         </section>
-        
+
         <!-- Team Section -->
         <section id="teamManager" class="content-section text-center">
             <div class="team-section">
@@ -157,15 +153,28 @@
             </div>
         </footer>
 
+        <!-- Login Modal -->
+        <div class="modal fade" id="signInModal" tabindex="-1" role="dialog" aria-labelledby="signInModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title" id="signInModalLabel">Sign In</h4>
+                    </div>
+                    <div class="modal-body">
+                        <input type="text" id="userLogin" placeholder="email" /><br/>
+                        <input type="password" id="userLogin" placeholder="password" />
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-primary" onclick="login()">Sign In</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <script src="lib/jquery/jquery.js"></script>
         <script src="lib/jquery/jquery.easing.min.js"></script>
-        <script src="lib/angular/angular.js"></script>
         <script src="lib/bootstrap/bootstrap.js"></script>
-        <script src="js/app.js"></script>
-        <script src="js/controllers.js"></script>
-        <script src="js/directives.js"></script>
-        <script src="js/filters.js"></script>
-        <script src="js/services.js"></script>
-        <script src="lib/angular/angular-resource.js"></script>
+        <script src="js/landingpage.js"></script>
     </body>
 </html>

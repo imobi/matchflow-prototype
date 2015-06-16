@@ -1,0 +1,254 @@
+<section id="analyzerContent" class="container content-section">
+
+    <div class="row">
+        <div class="col-lg-12">
+            <table>
+                <tr>
+                    <td class="info-text-title">
+                        Project:
+                    </td>
+                    <td class="info-text">
+                        {{ currentProjectConfiguration.name}}
+                    </td>
+                    <td class="info-text-title">
+                        Category:
+                    </td>
+                    <td class="info-text">
+                        {{ currentProjectConfiguration.selectedCategory.name}}
+                    </td>
+                    <td class="info-text-title">
+                        Team:
+                    </td>
+                    <td class="info-text">
+                        {{ currentProjectConfiguration.selectedTeam.name}}
+                    </td>
+                    <td class="info-text-title">
+                        Season:
+                    </td>
+                    <td class="info-text">
+                        {{ currentProjectConfiguration.selectedSeason.name}}
+                    </td>
+                    <td class="info-text-title">
+                        Date:
+                    </td>
+                    <td class="info-text">
+                        {{ currentProjectConfiguration.selectedGameDate}}
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Main hero unit for a primary marketing message or call to action -->
+        <div class="col-lg-12">
+
+            <div id="uploadArea" class="drag-and-drop-area-border" style="display:block;">
+                <!--<form action="/analyser/file-upload" class="dropzone" id="dropZone" method="post" enctype="multipart/form-data"></form>-->
+            </div>
+
+            <div id="videoPlayer" style="display:none;">
+<!--                <video width="640" height="480" controls>
+                    <source id="source" src="upload/" type="video/mp4" />
+                </video>-->
+            </div>
+
+            <div>
+                <table>
+                    <tr>
+                        <td colspan="2">
+                    <tag-line counter="timestamp" tagslist="currentProjectConfiguration.tags" playstatus="play" ></tag-line>
+                    </td>
+                    </tr>
+                    <tr>
+                        <td>
+                    <tag-holder datalist="currentProjectConfiguration.selectedTemplate"></tag-holder>
+                    </td>
+                    <td>
+                    <template-list datalist="user.tagTemplateList" selectedtemplate="currentProjectConfiguration.selectedTemplate"></template-list>
+                    </td>
+                    </tr>
+                </table>
+            </div>
+
+        </div>
+
+<!--         DIALOGS 
+
+        <div id="newProjectDetails" title="Enter New Project Details">
+            <table>
+                <tr>
+                    <td>
+                        Project Name:
+                    </td>
+                    <td>
+                        <input type="text" ng-model="newProject.name" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        Category:
+                    </td>
+                    <td>
+                        <select ng-model="newProject.selectedCategory" ng-options="c.name for c in user.categoryList"></select>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        Team:
+                    </td>
+                    <td>
+                        <select ng-model="newProject.selectedTeam" ng-options="t.name for t in user.teamList"></select>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        Season:
+                    </td>
+                    <td>
+                        <select ng-model="newProject.selectedSeason" ng-options="s.name for s in user.seasonList"></select>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        Game Date:
+                    </td>
+                    <td style="white-space: nowrap;">
+                        <input class="gameDate" type="text" ng-model="newProject.selectedGameDate" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        Default Tag Template:
+                    </td>
+                    <td>
+                        <select ng-model="newProject.defaultTemplate" ng-options="t.name for t in user.tagTemplateList"></select>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <div id="editProjectDetails" title="Edit Project Details">
+            <table>
+                <tr>
+                    <td>
+                        Project Name:
+                    </td>
+                    <td>
+                        <input type="text" ng-model="currentProjectConfiguration.name" disabled />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        Category:
+                    </td>
+                    <td>
+                        <select ng-model="editCurrentProject.selectedCategory" ng-options="c.name for c in user.categoryList"></select>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        Team:
+                    </td>
+                    <td>
+                        <select ng-model="editCurrentProject.selectedTeam" ng-options="t.name for t in user.teamList"></select>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        Season:
+                    </td>
+                    <td>
+                        <select ng-model="editCurrentProject.selectedSeason" ng-options="s.name for s in user.seasonList"></select>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        Game Date:
+                    </td>
+                    <td style="white-space: nowrap;">
+                        <input class="gameDate" type="text" ng-model="editCurrentProject.selectedGameDate" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        Default Tag Template:
+                    </td>
+                    <td>
+                        <select ng-model="editCurrentProject.defaultTemplate" ng-options="t.name for t in user.tagTemplateList"></select>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <div id="configureCategories" title="Configure Categories">
+            <p class="dialog-info-text">
+                Add/Remove Categories by using the table below:
+            </p>
+            <category-list datalist="manageCategories.categoryList" />
+        </div>
+
+        <div id="configureTeams" title="Configure Teams">
+            <p class="dialog-info-text">
+                Add/Remove Teams by using the table below:
+            </p>
+            <team-list datalist="manageTeams.teamList" />
+        </div>
+
+        <div id="configureSeasons" title="Configure Seasons">
+            <p class="dialog-info-text">
+                Add/Remove Seasons by using the table below:
+            </p>
+            <season-list datalist="manageSeasons.seasonList" />
+        </div>
+
+        <div id="createNewTag" title="Create New Tag">
+            <p class="dialog-info-text">
+                Enter new tag name below:
+            </p>
+            <table>
+                <tr>
+                    <td>Name:</td>
+                    <td><input type="text" ng-model="manageTags.tagToAdd.name" /></td>
+                </tr>
+                <tr>
+                    <td>Before:</td>
+                    <td><input type="text" ng-model="manageTags.tagToAdd.before" /></td>
+                </tr>
+                <tr>
+                    <td>After:</td>
+                    <td><input type="text" ng-model="manageTags.tagToAdd.after" /></td>
+                </tr>
+            </table>
+
+        </div>-->
+
+        <!--            <div id="createNewTemplate" title="Create New Template">
+                        
+                    </div>-->
+
+<!--        <div id="confirmDeleteTemplate" title="Confirm Delete Template">
+
+        </div>
+
+        <div id="confirmDeleteTag" title="Confirm Delete Tag">
+
+        </div>
+
+        <div id="confirmDeleteCategory" title="Confirm Delete Category">
+
+        </div>
+
+        <div id="confirmDeleteTeam" title="Confirm Delete Team">
+
+        </div>
+
+        <div id="confirmDeleteSeason" title="Confirm Delete Season">
+
+        </div>
+
+        <div id="confirmDeleteProject" title="Confirm Delete Project">
+
+        </div>-->
+
+</section>
