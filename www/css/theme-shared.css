@@ -183,6 +183,10 @@ a:focus {
     background-color: transparent;
 }
 
+.btn-round {
+    border-radius: 10px;
+}
+
 .btn-default:hover,
 .btn-default:focus {
     border: 1px solid #42dca3;
@@ -191,9 +195,14 @@ a:focus {
     background-color: #42dca3;
 }
 
-.glyphicon.custom {
+.glyphicon.large-inverted {
     color: white;
     font-size: 26px;
+}
+
+.glyphicon.small-inverted {
+    color: white;
+    font-size: 16px;
 }
 
 .modal-header {

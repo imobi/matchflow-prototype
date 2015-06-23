@@ -76,14 +76,14 @@
     background: rgba(255,255,255,.1);
 }
 
-.btn-circle b.animated {
+.btn-circle .animated {
     -webkit-transition-property: -webkit-transform;
     -webkit-transition-duration: 1s;
     -moz-transition-property: -moz-transform;
     -moz-transition-duration: 1s;
 }
 
-.btn-circle:hover b.animated {
+.btn-circle:hover .animated {
     -webkit-animation-name: pulse;
     -moz-animation-name: pulse;
     -webkit-animation-duration: 1.5s;

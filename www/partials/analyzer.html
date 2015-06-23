@@ -86,24 +86,20 @@
                                 <input type="text" ng-model="newProject.name" class="form-control"/>
                             </div>
                             <div class="input-group">
-                                <span class="input-group-addon">Category:</span>
-                                <select ng-model="newProject.selectedCategory" ng-options="c.name for c in user.categoryList" class="form-control"></select>
+                                <span class="input-group-addon">League:</span>
+                                <input type="text" ng-model="newProject.selectedLeague" class="form-control"></select>
                             </div>
                             <div class="input-group">
-                                <span class="input-group-addon">Team:</span>
-                                <select ng-model="newProject.selectedTeam" ng-options="t.name for t in user.teamList" class="form-control"></select>
-                            </div>
-                            <div class="input-group">
-                                <span class="input-group-addon">Season:</span>
-                                <select ng-model="newProject.selectedSeason" ng-options="s.name for s in user.seasonList" class="form-control"></select>
+                                <span class="input-group-addon">Teams:</span>
+                                <input type="text" ng-model="newProject.selectedTeams" class="form-control">
                             </div>
                             <div class="input-group">
                                 <span class="input-group-addon">Game Date:</span>
                                 <input type="date" ng-model="newProject.selectedGameDate" class="form-control"/>
                             </div>
                             <div class="input-group">
-                                <span class="input-group-addon">Default Tag Template:</span>
-                                <select ng-model="newProject.defaultTemplate" ng-options="t.name for t in user.tagTemplateList" class="form-control"></select>
+                                <span class="input-group-addon">Event Groups:</span>
+                                <input type="text" ng-model="newProject.selectedEventGroups" class="form-control"/>
                             </div>
                         </div>
                     </div>
@@ -180,34 +176,12 @@
                 </div>
             </div>
         </div>
-        
-
-        <div class="modal fade" id="configureCategories" tabindex="-1" role="dialog" aria-labelledby="configureCategoriesTitle" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h4 class="modal-title" id="configureCategoriesTitle">Configure Categories</h4>
-                    </div>
-                    <div class="modal-body">
-                        <p class="dialog-info-text">
-                            Add/Remove Categories by using the table below:
-                        </p>
-                        <category-list datalist="manageCategories.categoryList" />
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                        <!--<button type="button" class="btn btn-primary" onclick="login()">Sign In</button>-->
-                    </div>
-                </div>
-            </div>
-        </div>
-
                         
-        <div class="modal fade" id="editProjectDetails" tabindex="-1" role="dialog" aria-labelledby="editProjectDetailsTitle" aria-hidden="true">
+        <div class="modal fade" id="editTeamDetails" tabindex="-1" role="dialog" aria-labelledby="editTeamDetailsTitle" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h4 class="modal-title" id="editProjectDetailsTitle">Edit Project Details</h4>
+                        <h4 class="modal-title" id="editTeamDetailsTitle">Edit Team Details</h4>
                     </div>
                     <div class="modal-body">
         <!--<div id="configureTeams" title="Configure Teams">-->
@@ -224,11 +198,11 @@
             </div>
         </div>
 
-        <div class="modal fade" id="editProjectDetails" tabindex="-1" role="dialog" aria-labelledby="editProjectDetailsTitle" aria-hidden="true">
+        <div class="modal fade" id="editSeasonDetails" tabindex="-1" role="dialog" aria-labelledby="editSeasonDetailsTitle" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h4 class="modal-title" id="editProjectDetailsTitle">Edit Project Details</h4>
+                        <h4 class="modal-title" id="editSeasonDetailsTitle">Edit Season Details</h4>
                     </div>
                     <div class="modal-body">
         <!--<div id="configureSeasons" title="Configure Seasons">-->

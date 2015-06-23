@@ -91,34 +91,170 @@ angular.module('matchflow.directives', []).
                 }
             };
         }
-    ).directive('categoryList', function($compile) {
+    ).directive(
+        'mfSideBar', function($compile) {
+            return {
+                restrict: 'E',
+                replace: true,
+                scope: {
+                    config: '=sideBarConfig'
+                },
+                template: '<div></div>',
+                link: function(scope,elem,attr) {
+                    scope.showManagerDialog = scope.config.onclick;
+                    var sideBarHtml = '<ul class="side-bar-container nav nav-pills nav-stacked">';
+                    for (var t = 0; t < scope.config.data.length; t++) {
+                        var tab = scope.config.data[t];
+                        sideBarHtml += '<li id="'+tab.id+'" class="side-bar-tab '+tab.id+'" ng-click="showManagerDialog(\''+tab.id+'\');"><div class="rotate90">'+tab.name+'</div></li>';
+                    }
+                    sideBarHtml += '</ul>';
+                    elem.html($compile(sideBarHtml)(scope));
+                }
+            };
+        }
+    ).directive('mfEventList', function($compile) {
         return {
             scope: {
-                localCategoryList : '=datalist'
+                localEventGroupData : '=eventGroupData'
             },
             replace: true,
             restrict: 'E',
+            template: '<div></div>',
             link: function(scope, element) {
                 scope.$watch(
-                    'localCategoryList',
+                    'localEventGroupData',
                     function(newList,oldList) {
-                        if (newList.length === 0 || 
-                                oldList && oldList.length !== newList.length) {
+                        if (newList !== undefined) {
                             // only update if the length is different between the lists, not for every single edit
-                            element.children().remove();
-                            element.append($compile('<table id="categoryList"><tr><td><input type="text" ng-model="manageCategories.categoryToAdd.name" class="input-modifier" /></td><td><button class="button-modifier" ng-click="manageCategories.addCategory()">Add</button></td></tr></table>')(scope.$parent));
-                            var tableElement = angular.element('#categoryList');
-                            var content = '';
+                            var content = '<div class="form-inline">'+
+                                              '<div class="form-group">'+
+                                                  '<input type="text" ng-model="manageEvents.eventGroupToAdd.name" class="form-control" style="width:180px;"/> '+
+                                                  '<input type="text" ng-model="manageEvents.eventGroupToAdd.color" class="form-control" style="width:80px;"/> '+
+                                                  '<button class="btn btn-sm btn-primary" ng-click="manageEvents.addEventGroup()"><i class="glyphicon small-inverted glyphicon-plus"></i></button>'+
+                                              '</div>'+
+                                          '</div>';
                             for (var i = 0; i < newList.length; i++) {
-                                content += '<tr><td><input type="text" ng-model="manageCategories.categoryList['+i+'].name" class="input-modifier" disabled /></td><td><button ng-click="manageCategories.removeCategory('+i+')">X</button></td></tr>';
+                                var eventGroup = newList[i];
+                                content += '<div class="form-inline" style="margin-top:5px;">'+
+                                               '<div class="form-group" style="width:100%;">'+
+                                                   '<mf-event-group event-data="manageEvents.eventGroupMap[\''+eventGroup.name+'\']" event-group-name="'+eventGroup.name+'" event-group-index="'+i+'" event-group-color="'+eventGroup.color+'" />'+
+                                               '</div>'+
+                                           '</div>';
                             }
-                            tableElement.append($compile(content)(scope.$parent));
+                            element.html($compile(content)(scope.$parent));
                         }
                     }, 
                     true
                 );
+            }
+        };
+    }).directive('mfEventGroup', function($compile) {
+        return {
+            replace: true,
+            restrict: 'E',
+            scope: {
+                localEventData : '=eventData'
             },
-            template: '<div></div>'
+            template: '<div></div>',
+            link: function(scope, element, attrs) {
+                scope.$watch(
+                    'localEventData',
+                    function(newData,oldData) {
+                        if (newData.eventList !== undefined) {
+                            // only update if the length is different between the lists, not for every single edit
+                            var eventGroupContent = '<div class="panel-group" role="tablist" aria-multiselectable="true">'+
+                                              '<div class="panel panel-default">'+
+                                                  '<div class="panel-heading" role="tab" id="'+attrs.eventGroupName+'_heading">'+
+                                                      '<h4 class="panel-title" style="position:relative;">'+
+                                                          '<a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseOne" aria-expanded="true" aria-controls="collapseOne">'+
+                                                              attrs.eventGroupName+
+                                                          '</a>'+
+                                                          '<a style="position:absolute; right:0px;" ng-click="manageEvents.removeEventGroup('+attrs.eventGroupIndex+')"><i class="glyphicon glyphicon-trash"></i></a>'+
+                                                      '</h4>'+
+                                                  '</div>'+
+                                                  '<div id="'+attrs.eventGroupName+'_collapse" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="'+attrs.eventGroupName+'_heading">'+
+                                                      '<div class="form-inline" style="margin-left:10px; margin-top:5px;">'+
+                                                          '<div class="form-group">'+
+                                                              '<input type="text" placeholder="name" ng-model="manageEvents.eventGroupMap[\''+attrs.eventGroupName+'\'].eventToAdd.name" class="form-control" style="width:180px;" /> '+
+                                                              '<input type="text" placeholder="before" ng-model="manageEvents.eventGroupMap[\''+attrs.eventGroupName+'\'].eventToAdd.before" class="form-control" style="width:80px;" /> '+
+                                                              '<input type="text" placeholder="after" ng-model="manageEvents.eventGroupMap[\''+attrs.eventGroupName+'\'].eventToAdd.after" class="form-control" style="width:80px;" /> '+
+                                                              '<button class="btn btn-round btn-sm btn-primary" ng-click="manageEvents.addEventToGroup(\''+attrs.eventGroupName+'\')"><i class="glyphicon small-inverted glyphicon-plus"></i></button>'+
+                                                          '</div>'+
+                                                      '</div>'+
+                                                      '<div class="form-group" style="width:100%; padding-bottom: 5px;">';
+                            // now populate the content
+                            for (var i = 0; i < newData.eventList.length; i++) {
+                                var eventData = newData.eventList[i];
+                                eventGroupContent += '<mf-event event-name="'+eventData.name+'" event-index="'+i+'" event-group-name="'+attrs.eventGroupName+'" event-before="'+eventData.before+'" event-after="'+eventData.after+'" event-color="'+attrs.eventGroupColor+'"></mf-event>';
+                            }
+
+                            eventGroupContent += '</div>'+ // inline content
+                                             '</div>'+ //collapse panel
+                                         '</div>'+ // panel
+                                     '</div>'; // panel group
+                            element.html($compile(eventGroupContent)(scope.$parent));
+                            
+                        }
+                    }, 
+                    true
+                );
+            }
+        };
+    }).directive('mfEvent', function($compile) {
+        return {
+            replace: true,
+            scope: true,
+            restrict: 'E',
+            template: '<div class="mf-event draggable"></div>',
+            link: function(scope, element, attrs) {
+                scope.removeEvent = function() {
+                    scope.manageEvents.removeEventFromGroup(attrs.eventGroupName, attrs.eventIndex);
+                };
+                scope.addEvent = function() {
+                    //scope.manageEvents.addEventTagToEventTagLine(scope.id);
+                };
+                var content = '<div ng-click="addEvent()" class="mf-event-tag" style="background-color:'+attrs.eventColor+';">'+
+                                  attrs.eventName+
+                                  '<a ng-click="removeEvent()" style="position:absolute; right:10px;">'+
+                                      '<i class="glyphicon glyphicon-trash"></i>'+
+                                  '</a>'+
+                              '</div>';
+                element.html($compile(content)(scope));
+            }
+        };
+    }).directive('mfUserProfile', function($compile) {
+        return {
+            scope: {
+                localProfileData : '=profileData'
+            },
+            replace: true,
+            restrict: 'E',
+            template: '<div></div>',
+            link: function(scope, element) {
+                var content = '';
+                content += '<div class="dialog-info-text">Basic Info:</div>';
+                var basicInfo = [];
+                basicInfo[0] = { id:'firstName', label:'First Name' };
+                basicInfo[1] = { id:'lastName', label:'Last Name' };
+                basicInfo[2] = { id:'email', label:'Email' };
+                for (var i = 0; i < basicInfo.length; i++) {
+                    var info = basicInfo[i];
+                    content += '<div class="input-group">'+
+                            '<span class="input-group-addon" id="'+info.id+'Label">'+
+                                info.label+
+                            '</span>'+
+                            '<input type="text" class="form-control" placeholder="'+info.label+'" ng-model="user.'+info.id+'" aria-describedby="'+info.id+'Label">'+
+                        '</div>';
+                }
+                content += '<div class="dialog-info-text">Permissions:</div>';
+                content += '<ul class="list-group">';
+                for (var i = 0; i < scope.localProfileData.permissions.length; i++) {
+                    var permObj = scope.localProfileData.permissions[i];
+                    content += '<li class="list-group-item">'+permObj.name+'</li>';
+                }
+                content += '</ul>';
+                element.html($compile(content)(scope.$parent));
+            }            
         };
     }).directive('teamList', function($compile) {
         return {
@@ -135,11 +271,11 @@ angular.module('matchflow.directives', []).
                                 oldList && oldList.length !== newList.length) {
                             // only update if the length is different between the lists, not for every single edit
                             element.children().remove();
-                            element.append($compile('<table id="teamList"><tr><td><input type="text" ng-model="manageTeams.teamToAdd.name" class="input-modifier" /></td><td><button class="button-modifier" ng-click="manageTeams.addTeam()">Add</button></td></tr></table>')(scope.$parent));
+                            element.append($compile('<table id="teamList"><tr><td><input type="text" ng-model="manageTeams.teamToAdd.name" class="input-modifier" /></td><td><button class="button-modifier" ng-click="manageTeams.addTeam()"><i class="glyphicon small-inverted glyphicon-plus"></i></button></td></tr></table>')(scope.$parent));
                             var tableElement = angular.element('#teamList');
                             var content = '';
                             for (var i = 0; i < newList.length; i++) {
-                                content += '<tr><td><input type="text" ng-model="manageTeams.teamList['+i+'].name" class="input-modifier" disabled /></td><td><button ng-click="manageTeams.removeTeam('+i+')">X</button></td></tr>';
+                                content += '<tr><td><input type="text" ng-model="manageTeams.teamList['+i+'].name" class="input-modifier" disabled /></td><td><button ng-click="manageTeams.removeTeam('+i+')"><i class="glyphicon small-inverted glyphicon-trash"></i></button></td></tr>';
                             }
                             tableElement.append($compile(content)(scope.$parent));
                         }
@@ -164,11 +300,11 @@ angular.module('matchflow.directives', []).
                                 oldList && oldList.length !== newList.length) {
                             // only update if the length is different between the lists, not for every single edit
                             element.children().remove();
-                            element.append($compile('<table id="seasonList"><tr><td><input type="text" ng-model="manageSeasons.seasonToAdd.name" class="input-modifier" /></td><td><button class="button-modifier" ng-click="manageSeasons.addSeason()">Add</button></td></tr></table>')(scope.$parent));
+                            element.append($compile('<table id="seasonList"><tr><td><input type="text" ng-model="manageSeasons.seasonToAdd.name" class="input-modifier" /></td><td><button class="button-modifier" ng-click="manageSeasons.addSeason()"><i class="glyphicon small-inverted glyphicon-plus"></i></button></td></tr></table>')(scope.$parent));
                             var tableElement = angular.element('#seasonList');
                             var content = '';
                             for (var i = 0; i < newList.length; i++) {
-                                content += '<tr><td><input type="text" ng-model="manageSeasons.seasonList['+i+'].name" class="input-modifier" disabled /></td><td><button ng-click="manageSeasons.removeSeason('+i+')">X</button></td></tr>';
+                                content += '<tr><td><input type="text" ng-model="manageSeasons.seasonList['+i+'].name" class="input-modifier" disabled /></td><td><button ng-click="manageSeasons.removeSeason('+i+')"><i class="glyphicon small-inverted glyphicon-trash"></i></button></td></tr>';
                             }
                             tableElement.append($compile(content)(scope.$parent));
                         }
@@ -192,13 +328,13 @@ angular.module('matchflow.directives', []).
                     function(newList,oldList) {
                         if (newList) {
                             element.children().remove();
-                            var content = '<table><tr><td><input type="text" ng-model="manageTemplates.templateToAdd.name" class="input-modifier" /></td><td><button class="button-modifier" ng-click="manageTemplates.addTemplate()">Add</button></td></tr>';
+                            var content = '<table><tr><td><input type="text" ng-model="manageTemplates.templateToAdd.name" class="input-modifier" /></td><td><button class="button-modifier" ng-click="manageTemplates.addTemplate()"><i class="glyphicon small-inverted glyphicon-plus"></i></button></td></tr>';
                             for (var i = 0; i < newList[0].length; i++) {
                                 var currentSelected = 'normal-template';
                                 if (newList[0] && newList[1] && newList[0][i].name === newList[1].name) {
                                     currentSelected = 'selected-template';
                                 }
-                                content += '<tr><td colspan="2"><a ng-click="manageTemplates.selectTemplate('+i+')"><div class="'+currentSelected+'"><table class="inner-template-table"><tr><td>'+newList[0][i].name+'</td><td style="width:16px;"><button class="remove-button" ng-click="manageTemplates.removeTemplate('+i+')">X</button></td></tr></table></div></a></td></tr>';
+                                content += '<tr><td colspan="2"><a ng-click="manageTemplates.selectTemplate('+i+')"><div class="'+currentSelected+'"><table class="inner-template-table"><tr><td>'+newList[0][i].name+'</td><td style="width:16px;"><button class="remove-button" ng-click="manageTemplates.removeTemplate('+i+')"><i class="glyphicon small-inverted glyphicon-trash"></i></button></td></tr></table></div></a></td></tr>';
                             }
                             element.append($compile(content+'</table>')(scope.$parent));
                         }
@@ -274,26 +410,6 @@ angular.module('matchflow.directives', []).
                           '<div id="tagContainer" style="position:relative; background-image: url(\'img/positionmarker.png\'); left:50%; width: {{ totalDuration }}px; margin-left: -{{ currentPosition }}px; top:0px; height:80px; background-repeat: repeat-x;"></div>' +
                           '<div style="position:absolute; border:solid 1px #006dcc; width:1px; height:98px; left:406px; top:0px;">' +
                       '</div>'
-        };
-    }).directive('tag', function($compile) {
-        return {
-            scope: {},
-            replace: true,
-            restrict: 'E',
-            link: function(scope, element, attr) {
-                scope.name = attr.name;
-                scope.id = attr.name;
-                scope.beforetag = attr.before;
-                scope.aftertag = attr.after;
-                scope.index = attr.index;
-                scope.removeTag = function() {
-                    scope.$parent.manageTags.removeTag(scope.index);
-                };
-                scope.addTag = function() {
-                    scope.$parent.addTagToTagLine(scope.id);
-                };
-            },
-            template: '<div id="{{ id }}" ng-click="addTag()" class="tag draggable" data-tagname="{{ name }}" data-beforetag="{{ beforetag }}" data-aftertag="{{ aftertag }}">{{ name }}<button ng-click="removeTag()" class="remove-button">X</button></div>'
         };
     }).directive('tagHolder', function($compile) {
         return {

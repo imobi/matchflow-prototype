@@ -3,51 +3,158 @@
 /* Controllers */
 angular.module('matchflow.controllers', [])
     .controller('MainController', ['$scope', function ($scope) {
+        $scope.signOut = function() {
+            // kill session and user here (this is incase the person presses back, 
+            // then they will get logged out straight away)
+            
+            // then go to index...
+            window.location = 'index.html';
+        };
         // GENERAL CONFIG
         $scope.user = {
             id: 'default-user',
-            name: 'Default User',
+            firstName: 'Default',
+            lastName: 'User',
+            email: 'defaulty@email.com',
+            password: '123',
             loginTime: 0,
-            tagTemplateList: [
+            leagueList: [],
+            teamList: [],
+            eventGroupList: [],
+            projectList: [],
+            permissions: [
+                { // default, everyone should have this
+                    id: 'profileManager',
+                    name: 'Profile Manager'
+                },
                 {
-                    name: 'default',
-                    tags: [
-                        /*
-                         * {
-                         *     id: 'tag1'
-                         *     name: 'Tag 1'
-                         *     before: 5000,
-                         *     after:  2000
-                         * }
-                         * 
-                         */
-                    ]
-                }
-            ],
-            // will change this later:  category > team > season
-            categoryList: [
+                    id: 'eventManager',
+                    name: 'Event Manager'
+                },
                 {
-                    name: 'none'
-                }
-            ],
-            teamList: [
+                    id: 'leagueManager',
+                    name: 'League Manager'
+                },
                 {
-                    name: 'none'
-                }
-            ],
-            seasonList: [
+                    id: 'subscriptionManager',
+                    name: 'Subscription Manager'
+                },
                 {
-                    name: 'none'
+                    id: 'teamManager',
+                    name: 'Team Manager'
                 }
-            ],
-            projectList: [
-                // list of project id's
-                'default'
-            ],
-            highlightsList: [
-                // list of highlights objects id's
             ]
         };
+        $scope.sideBarConfiguration = {
+            onclick: function(id) {
+                $scope.showManagerDialog(id);
+            },
+            data: $scope.user.permissions
+        };
+
+        // Event Categories    
+        $scope.manageEvents = {
+            eventGroupToAdd: {
+                name: '',
+                color: 'green',
+                eventToAdd: { 
+                    name: '',
+                    before: 500,
+                    after: 500
+                },
+                eventList : []
+            },
+            eventGroupList: [],
+            eventGroupMap: {},
+            addEventGroup: function () {
+                if ($scope.manageEvents.eventGroupToAdd && $scope.manageEvents.eventGroupToAdd.name && 
+                    $scope.manageEvents.eventGroupToAdd.name.length > 0) {
+                    $scope.manageEvents.eventGroupList[$scope.manageEvents.eventGroupList.length] = $scope.manageEvents.eventGroupToAdd;
+                    $scope.manageEvents.eventGroupMap[$scope.manageEvents.eventGroupToAdd.name] = $scope.manageEvents.eventGroupToAdd;
+                    $scope.manageEvents.clearInput();
+                }
+            },
+            clearInput: function() {
+                $scope.manageEvents.eventGroupToAdd = {
+                    name: '',
+                    color: 'green',
+                    eventToAdd: { 
+                        name: '',
+                        before: 500,
+                        after: 500
+                    },
+                    eventList : []
+                };
+            },
+            removeEventGroup: function (index) {
+                var eventGroup = $scope.manageEvents.eventGroupList[index];
+                $scope.manageEvents.eventGroupMap[eventGroup.name] = undefined;
+                eventGroup = undefined;
+                $scope.manageEvents.eventGroupList.splice(index, 1);
+            },
+            addEventToGroup : function(name) {
+                if ($scope.manageEvents.eventGroupMap[name] !== undefined) {
+                    $scope.manageEvents.eventGroupMap[name].eventList[$scope.manageEvents.eventGroupMap[name].eventList.length] = $scope.manageEvents.eventGroupMap[name].eventToAdd;
+                    $scope.manageEvents.clearEventInput(name);
+                }
+            },
+            clearEventInput: function(name) {
+                if ($scope.manageEvents.eventGroupMap[name] !== undefined) {
+                    $scope.manageEvents.eventGroupMap[name].eventToAdd = { 
+                        name: '',
+                        before: 500,
+                        after: 500
+                    };
+                }
+            },
+            removeEventFromGroup : function(name,index) {
+                if ($scope.manageEvents.eventGroupMap[name] !== undefined) {
+                    $scope.manageEvents.eventGroupMap[name].eventList.splice(index, 1);
+                }
+            }
+        };
+        $scope.showManagerDialog = function (id) {
+            if (id === 'eventManager') {
+                $scope.manageEvents.clearInput();
+            } else if (id === 'profileManager') {
+                $scope.managePlayer = {
+                    id: 'player_1',
+                    firstName: 'Firsty',
+                    surnameName: 'Namey',
+                    idPhoto: '<img src="img/idphoto.png" alt="idphoto" class="player-manager-id-photo">',
+                    history: [
+                        '...1','...2','...3'
+                    ]
+                };
+            } else if (id === 'leagueManager') {
+                $scope.manageLeague = {
+                    leagues: [
+                        {
+                            id: 'league_1',
+                            name: 'League 1',
+                            teams: ['team_1','team_2','team_3'],
+                            startDate: '01/01/2001',
+                            endDate: '31/12/2001',
+                            fixtures: [],
+                            results: []
+                        }
+                    ]
+                };
+            } else if (id === 'teamManager') {
+                $scope.manageCategories.categoryToAdd = {
+                    teams: [
+                        {
+                            id: 'team_1',
+                            name: 'Team 1',
+                            players: ['player_1'],
+                            coach: ''
+                        }
+                    ]
+                };
+            }
+            angular.element('#'+id+'Dialog').modal('show');
+        };
+        // -- end: event categories
     }]).controller('DashboardController', ['$scope', function ($scope) {
 
     }]).controller('AnalyzerController', ['$scope', '$compile', '$http', '$location', '$route', '$timeout', function ($scope, $compile, $http, $location, $route, $timeout) {
@@ -83,227 +190,131 @@ angular.module('matchflow.controllers', [])
             }
         };
         $scope.timeoutID = $scope.callback();
-        /*************************************/
-
         
+        /*************************************/
         // PROJECT SPECIFIC
         $scope.currentProjectConfiguration = {
-            id: 'unknown',
-            name: 'Unknown',
-            selectedCategory: {
-                name: 'none'
-            },
-            selectedTeam: {
-                name: 'none'
-            },
-            selectedSeason: {
-                name: 'none'
-            },
-            selectedGameDate: '',
-            defaultTemplate: undefined, // will change these when loading, this is the basic defaults
-            selectedTemplate: undefined,
-            tags: [
-                /* list of the current applied tags (NOT A TEMPLATE, CAN CONSIST OF TAGS FROM MULTIPLE TEMPLATES)
-                 * {
-                 *     id: 'tag1'
-                 *     name: 'Tag 1'
-                 *     // these are custom positions, template is the init value
-                 *     before: 4532,
-                 *     after:  2106
-                 *     timestamp : 12390120390293
-                 *     
-                 * }
-                 * 
-                 */
-            ]
+            id: '',
+            name: '',
+            selectedTeams: '',
+            selectedLeague: '',
+            selectedEventGroups: '',
+            selectedGameDate: ''
         };
         // INPUT FORMS
         $scope.newProject = {
             name: '',
-            selectedCategory: $scope.user.categoryList[0],
-            selectedTeam: $scope.user.teamList[0],
-            selectedSeason: $scope.user.seasonList[0],
-            selectedGameDate: '',
-            defaultTemplate: $scope.user.tagTemplateList[0]
-
+            selectedTeams: '',
+            selectedLeague: '',
+            selectedEventGroups: '',
+            selectedGameDate: ''
         };
-        $scope.editCurrentProject = {
-            selectedCategory: {
-                name: 'none'
-            },
-            selectedTeam: {
-                name: 'none'
-            },
-            selectedSeason: {
-                name: 'none'
-            },
-            selectedGameDate: '',
-            selectedTemplate: {
-                name: 'default',
-                tags: []
-            }
-        };
-        $scope.showEditProjectDialog = function () {
-            // set the values here:
-            $scope.editCurrentProject.selectedCategory = $scope.currentProjectConfiguration.selectedCategory;
-            $scope.editCurrentProject.selectedTeam = $scope.currentProjectConfiguration.selectedTeam;
-            $scope.editCurrentProject.selectedSeason = $scope.currentProjectConfiguration.selectedSeason;
-            $scope.editCurrentProject.selectedGameDate = $scope.currentProjectConfiguration.selectedGameDate;
-            $scope.editCurrentProject.selectedTemplate = $scope.currentProjectConfiguration.selectedTemplate;
-            $('#editProjectDetails').dialog('open');
-        };
-        $scope.manageTemplates = {
-            templateToAdd: {
-                name: '',
-                tags: []
-            },
-            addTemplate: function () {
-                if ($scope.manageTemplates.templateToAdd && $scope.manageTemplates.templateToAdd.name && $scope.manageTemplates.templateToAdd.name.length > 0) {
-                    $scope.user.tagTemplateList[$scope.user.tagTemplateList.length] = $scope.manageTemplates.templateToAdd;
-                    $scope.manageTemplates.templateToAdd = {
-                        name: '',
-                        tags: []
-                    };
-                }
-            },
-            removeTemplate: function (index) {
-                $scope.user.tagTemplateList.splice(index, 1);
-            },
-            selectTemplate: function (index) {
-                $scope.currentProjectConfiguration.selectedTemplate = $scope.user.tagTemplateList[index];
-            }
-        };
-        $scope.manageTags = {
-            tagToAdd: {
-                name: '',
-                before: 1,
-                after: 1
-            },
-            addTag: function () {
-                if ($scope.manageTags.tagToAdd && $scope.manageTags.tagToAdd.name && $scope.manageTags.tagToAdd.name.length > 0) {
-                    $scope.currentProjectConfiguration.selectedTemplate.tags[$scope.currentProjectConfiguration.selectedTemplate.tags.length] = $scope.manageTags.tagToAdd;
-                }
-                $scope.manageTags.tagToAdd = {
-                    name: '',
-                    before: 1,
-                    after: 1
-                };
-            },
-            removeTag: function (index) {
-                $scope.currentProjectConfiguration.selectedTemplate.tags.splice(index, 1);
-            }
-        };
-        $scope.showAddTagDialog = function () {
-            $('#createNewTag').dialog('open');
-        };
-        $scope.manageCategories = {
-            categoryToAdd: {
-                name: ''
-            },
-            categoryList: [],
-            addCategory: function () {
-                if ($scope.manageCategories.categoryToAdd && $scope.manageCategories.categoryToAdd.name && $scope.manageCategories.categoryToAdd.name.length > 0) {
-                    $scope.manageCategories.categoryList[$scope.manageCategories.categoryList.length] = $scope.manageCategories.categoryToAdd;
-                    $scope.manageCategories.categoryToAdd = {
-                        name: ''
-                    };
-                }
-            },
-            removeCategory: function (index) {
-                $scope.manageCategories.categoryList.splice(index, 1);
-            }
-        };
-        $scope.showManageCategoriesDialog = function () {
-            $scope.manageCategories.categoryToAdd = {
-                name: ''
-            };
-            $('#configureCategories').dialog('open');
-        };
-        $scope.manageTeams = {
-            teamToAdd: {
-                name: ''
-            },
-            teamList: [],
-            addTeam: function () {
-                if ($scope.manageTeams.teamToAdd && $scope.manageTeams.teamToAdd.name && $scope.manageTeams.teamToAdd.name.length > 0) {
-                    $scope.manageTeams.teamList[$scope.manageTeams.teamList.length] = $scope.manageTeams.teamToAdd;
-                    $scope.manageTeams.teamToAdd = {
-                        name: ''
-                    };
-                }
-            },
-            removeTeam: function (index) {
-                $scope.manageTeams.teamList.splice(index, 1);
-            }
-        };
-        $scope.showManageTeamsDialog = function () {
-            $scope.manageTeams.teamToAdd = {
-                name: ''
-            };
-            $('#configureTeams').dialog('open');
-        };
-        $scope.manageSeasons = {
-            seasonToAdd: {
-                name: ''
-            },
-            seasonList: [],
-            addSeason: function () {
-                if ($scope.manageSeasons.seasonToAdd && $scope.manageSeasons.seasonToAdd.name && $scope.manageSeasons.seasonToAdd.name.length > 0) {
-                    $scope.manageSeasons.seasonList[$scope.manageSeasons.seasonList.length] = $scope.manageSeasons.seasonToAdd;
-                    $scope.manageSeasons.seasonToAdd = {
-                        name: ''
-                    };
-                }
-            },
-            removeSeason: function (index) {
-                $scope.manageSeasons.seasonList.splice(index, 1);
-            }
-        };
-        $scope.showManageSeasonsDialog = function () {
-            $scope.manageSeasons.seasonToAdd = {
-                name: ''
-            };
-            $('#configureSeasons').dialog('open');
-        };
+//        
+//        $scope.manageTemplates = {
+//            templateToAdd: {
+//                name: '',
+//                tags: []
+//            },
+//            addTemplate: function () {
+//                if ($scope.manageTemplates.templateToAdd && $scope.manageTemplates.templateToAdd.name && $scope.manageTemplates.templateToAdd.name.length > 0) {
+//                    $scope.user.tagTemplateList[$scope.user.tagTemplateList.length] = $scope.manageTemplates.templateToAdd;
+//                    $scope.manageTemplates.templateToAdd = {
+//                        name: '',
+//                        tags: []
+//                    };
+//                }
+//            },
+//            removeTemplate: function (index) {
+//                $scope.user.tagTemplateList.splice(index, 1);
+//            },
+//            selectTemplate: function (index) {
+//                $scope.currentProjectConfiguration.selectedTemplate = $scope.user.tagTemplateList[index];
+//            }
+//        };
+//        $scope.manageTags = {
+//            tagToAdd: {
+//                name: '',
+//                before: 1,
+//                after: 1
+//            },
+//            addTag: function () {
+//                if ($scope.manageTags.tagToAdd && $scope.manageTags.tagToAdd.name && $scope.manageTags.tagToAdd.name.length > 0) {
+//                    $scope.currentProjectConfiguration.selectedTemplate.tags[$scope.currentProjectConfiguration.selectedTemplate.tags.length] = $scope.manageTags.tagToAdd;
+//                }
+//                $scope.manageTags.tagToAdd = {
+//                    name: '',
+//                    before: 1,
+//                    after: 1
+//                };
+//            },
+//            removeTag: function (index) {
+//                $scope.currentProjectConfiguration.selectedTemplate.tags.splice(index, 1);
+//            }
+//        };
+//        $scope.showAddTagDialog = function () {
+//            angular.element('#createNewTag').modal('show');
+//        };
+        
+//        $scope.manageTeams = {
+//            teamToAdd: {
+//                name: ''
+//            },
+//            teamList: [],
+//            addTeam: function () {
+//                if ($scope.manageTeams.teamToAdd && $scope.manageTeams.teamToAdd.name && $scope.manageTeams.teamToAdd.name.length > 0) {
+//                    $scope.manageTeams.teamList[$scope.manageTeams.teamList.length] = $scope.manageTeams.teamToAdd;
+//                    $scope.manageTeams.teamToAdd = {
+//                        name: ''
+//                    };
+//                }
+//            },
+//            removeTeam: function (index) {
+//                $scope.manageTeams.teamList.splice(index, 1);
+//            }
+//        };
+//        $scope.showManageTeamsDialog = function () {
+//            $scope.manageTeams.teamToAdd = {
+//                name: ''
+//            };
+//            angular.element('#configureTeams').modal('show');
+//        };
+//        
         // Tagline functionality
         $scope.addTagToTagLine = function (tagID) {
-            if ($scope.play) {
-                // only add if currently playing
-                var elementToAdd = angular.element('#' + tagID);
-                var l = $scope.currentProjectConfiguration.tags.length;
-                var time = $scope.timestamp;
-                $scope.currentProjectConfiguration.tags[l] = {
-                    id: 'tag_' + l + '_' + time,
-                    time: time,
-                    name: elementToAdd.data('tagname'),
-                    before: elementToAdd.data('beforetag'),
-                    after: elementToAdd.data('aftertag')
-                };
-            }
+//            if ($scope.play) {
+//                // only add if currently playing
+//                var elementToAdd = angular.element('#' + tagID);
+//                var l = $scope.currentProjectConfiguration.tags.length;
+//                var time = $scope.timestamp;
+//                $scope.currentProjectConfiguration.tags[l] = {
+//                    id: 'tag_' + l + '_' + time,
+//                    time: time,
+//                    name: elementToAdd.data('tagname'),
+//                    before: elementToAdd.data('beforetag'),
+//                    after: elementToAdd.data('aftertag')
+//                };
+//            }
         };
         // DIALOG FUNCTIONS
         $scope.createNewProject = function() {
             if ($scope.newProject.name && $scope.newProject.name.length > 0 &&
-                    $scope.newProject.selectedCategory && $scope.newProject.selectedCategory.name && $scope.newProject.selectedCategory.name.length > 0 &&
-                    $scope.newProject.selectedTeam && $scope.newProject.selectedTeam.name && $scope.newProject.selectedTeam.name.length > 0 &&
-                    $scope.newProject.selectedSeason && $scope.newProject.selectedSeason.name && $scope.newProject.selectedSeason.name.length > 0 &&
-                    $scope.newProject.defaultTemplate && $scope.newProject.defaultTemplate.name && $scope.newProject.defaultTemplate.name.length > 0) {
+                    $scope.newProject.selectedTeams !== undefined && $scope.newProject.selectedTeams.length > 0 &&
+                    $scope.newProject.selectedLeague !== undefined && $scope.newProject.selectedLeague.length > 0 &&
+                    $scope.newProject.selectedEventGroups !== undefined && $scope.newProject.selectedEventGroups.length > 0 &&
+                    $scope.newProject.selectedGameDate !== undefined && $scope.newProject.selectedGameDate.length > 0) {
                 $scope.currentProjectConfiguration.name = $scope.newProject.name;
                 $scope.currentProjectConfiguration.id = $scope.replaceAll($scope.newProject.name, ' ', '_');
-                $scope.currentProjectConfiguration.selectedCategory = $scope.newProject.selectedCategory;
-                $scope.currentProjectConfiguration.selectedTeam = $scope.newProject.selectedTeam;
-                $scope.currentProjectConfiguration.selectedSeason = $scope.newProject.selectedSeason;
-                $scope.currentProjectConfiguration.defaultTemplate = $scope.newProject.defaultTemplate;
-                $scope.currentProjectConfiguration.selectedTemplate = $scope.currentProjectConfiguration.defaultTemplate;
+                $scope.currentProjectConfiguration.selectedLeague = $scope.newProject.selectedLeague;
+                $scope.currentProjectConfiguration.selectedTeams = $scope.newProject.selectedTeams;
+                $scope.currentProjectConfiguration.selectedEventGroups = $scope.newProject.selectedEventGroups;
                 $scope.currentProjectConfiguration.selectedGameDate = $scope.newProject.selectedGameDate;
                 angular.element('#newProjectDetails').modal('hide');
                 $scope.newProject = {
                     name: '',
-                    selectedCategory: $scope.user.categoryList[0],
-                    selectedTeam: $scope.user.teamList[0],
-                    selectedSeason: $scope.user.seasonList[0],
-                    selectedGameDate: '',
-                    defaultTemplate: $scope.user.tagTemplateList[0]
+                    selectedTeams: '',
+                    selectedLeague: '',
+                    selectedEventGroups: '',
+                    selectedGameDate: ''
                 };
             } else {
                 // TODO form field validation
