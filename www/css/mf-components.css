@@ -117,17 +117,38 @@
     border-bottom-left-radius: 0px;
     border-top-right-radius: 4px !important;
     border-bottom-right-radius: 4px !important;
+    height: 36px;
+}
+.mf-autocomplete-container > .input-group-addon {
+    vertical-align: top; 
+    padding-top: 9px;
 }
 .mf-autocomplete-list {
     position: absolute;
     top: 36px;
+    z-index: 1;
     box-shadow: 0px 0px 3px 3px rgba(0,0,0,0.2);
     background-color: white;
 }
-
 .mf-autocomplete-list > ul {
     border: 4px solid white;
     margin-top: -3px;
     margin-bottom: 0px;
     box-shadow: none;
+}
+.mf-autocomplete-selection-list {
+    position: relative;
+    margin-top: 36px;
+    width: 100%;
+}
+.mf-selected-list {
+    margin-bottom: 0px;
+}
+.mf-icon-border {
+    position: absolute;
+    right: 5px;
+    background-color: white;
+    border-radius: 10px;
+    border: solid 5px white;
+    top: 5px;
 }

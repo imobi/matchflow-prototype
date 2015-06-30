@@ -237,19 +237,41 @@ angular.module('matchflow.directives', []).
         return {
             replace: true,
             scope: {
+                labelName: '=label',
                 autocompleteData: '=searchData',
-                searchValue: '=ngModel',
-                mode: '=selectMode' // single or multiple
+                selectedGroups: '=ngModel'
             },
             restrict: 'E',
-            template: '<div class="mf-autocomplete-container">'+
-                          '<input type="text" ng-model="searchValue" ng-blur="resultSelected" class="form-control" />'+
+            template: '<div class="input-group mf-autocomplete-container">'+
+                          '<span class="input-group-addon">{{ labelName }}</span>'+
+                          '<input type="text" ng-model="searchValue" class="form-control" />'+
                           '<div class="mf-autocomplete-list" style="display:none;"></div>'+
+                          '<div class="mf-autocomplete-selection-list">'+
+                              '<ul class="mf-selected-list list-group"></ul>'+
+                          '</div>'+
                       '</div>',
             link: function(scope, element, attrs) {
-                scope.resultSelected = function(e) {
+                scope.selectedGroupsMap = {};
+                scope.searchValue = '';
+                scope.updateToggle = false;
+                scope.resultSelected = function(selectedName) {
                     // TODO add selected result to the selection box and clear the input area
                     element.find('.mf-autocomplete-list').css('display','none');
+                    if (scope.selectedGroupsMap[selectedName] === undefined) {
+                        var actualGroup = scope.$parent.newProject.eventGroupMap[selectedName];
+                        scope.selectedGroupsMap[selectedName] = scope.selectedGroups.length;
+                        scope.selectedGroups[scope.selectedGroups.length] = actualGroup;
+                    }
+                    scope.searchValue = '';
+                };
+                scope.removeSelected = function(name) {
+                    scope.selectedGroups.splice(scope.selectedGroupsMap[name],1);
+                    scope.selectedGroupsMap[name] = undefined;
+                    // now run through remainder and update index's
+                    for (var s = 0; s < scope.selectedGroups.length; s++) {
+                        var group = scope.selectedGroups[s];
+                        scope.selectedGroupsMap[group.name] = s;
+                    }
                 };
                 scope.$watch(
                     'searchValue',
@@ -263,14 +285,14 @@ angular.module('matchflow.directives', []).
                                 var result = scope.autocompleteData[i];
                                 if (result.name !== undefined && result.name.indexOf(searchTerm)>=0) {
                                     matchFound = true;
-                                    searchResults += '<li class="list-group-item"><a ng-click="resultSelected()">'+result.name+'</a></li>';
+                                    searchResults += '<li class="list-group-item"><a ng-click="resultSelected(\''+result.name+'\')">'+result.name+'</a></li>';
                                 }
                             }
                             if (!matchFound) {
-                                searchResults += '<li class="list-group-item" ng-click="resultSelected">no matches found</li>';
+                                searchResults += '<li class="list-group-item">no matches found</li>';
                             }
                         } else {
-                            searchResults += '<li class="list-group-item" ng-click="resultSelected">please use @ matcher</li>';
+                            searchResults += '<li class="list-group-item">please use @ matcher</li>';
                         }
                         searchResults += '</ul>';
                         var width = element.find('input').outerWidth();
@@ -281,6 +303,28 @@ angular.module('matchflow.directives', []).
                             element.find('.mf-autocomplete-list').css('display','none');
                         }
                         
+                        
+                    }, 
+                    true
+                );
+                scope.$watch(
+                    'selectedGroups',
+                    function(newValue,oldValue) {
+                        var selectedGroups = '';
+                        for (var i = 0; i < scope.selectedGroups.length; i++) {
+                            var group = scope.selectedGroups[i];
+                            var eventNames = '';
+                            if (group.eventList.length > 0) {
+                                eventNames = group.eventList[0].name;
+                                if (group.eventList.length > 1) {
+                                    for (var j = 1; j < group.eventList.length; j++) {
+                                        eventNames += ', '+group.eventList[j].name;
+                                    }
+                                }
+                            }
+                            selectedGroups += '<li class="list-group-item" style="position:relative; background-color:'+group.color+';">'+group.name+' ['+eventNames+']<a ng-click="removeSelected(\''+group.name+'\')" class="mf-icon-border"><i class="glyphicon glyphicon-trash"></i></a></li>';
+                        }
+                        element.find('.mf-selected-list').html($compile(selectedGroups)(scope));
                     }, 
                     true
                 );

@@ -11,22 +11,16 @@
                         {{ currentProjectConfiguration.name}}
                     </td>
                     <td class="info-text-title">
-                        Category:
+                        League:
                     </td>
                     <td class="info-text">
-                        {{ currentProjectConfiguration.selectedCategory.name}}
+                        {{ currentProjectConfiguration.selectedLeague}}
                     </td>
                     <td class="info-text-title">
                         Team:
                     </td>
                     <td class="info-text">
-                        {{ currentProjectConfiguration.selectedTeam.name}}
-                    </td>
-                    <td class="info-text-title">
-                        Season:
-                    </td>
-                    <td class="info-text">
-                        {{ currentProjectConfiguration.selectedSeason.name}}
+                        {{ currentProjectConfiguration.selectedTeams}}
                     </td>
                     <td class="info-text-title">
                         Date:
@@ -97,10 +91,7 @@
                                 <span class="input-group-addon">Game Date:</span>
                                 <input type="date" ng-model="newProject.selectedGameDate" class="form-control"/>
                             </div>
-                            <div class="input-group">
-                                <span class="input-group-addon">Event Groups:</span>
-                                <mf-autocomplete search-data="newProject.eventGroupList" ng-model="newProject.selectedEventGroups"></mf-autocomplete>
-                            </div>
+                            <mf-autocomplete label="'Event Groups:'" search-data="newProject.eventGroupList" ng-model="newProject.selectedEventGroups"></mf-autocomplete>
                         </div>
                     </div>
                     <div class="modal-footer">

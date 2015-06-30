@@ -253,7 +253,7 @@ angular.module('matchflow.controllers', [])
             name: '',
             selectedTeams: '',
             selectedLeague: '',
-            selectedEventGroups: '',// we save a string of references
+            selectedEventGroups: [],// we save an array of references
             selectedGameDate: '',
             // INHERITED DATA
             // we pull through important references for the create project dialog
