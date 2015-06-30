@@ -3,30 +3,21 @@
 /* Directives */
 angular.module('matchflow.directives', []).
     directive(
-        'mfTabs', function() {
+        'mfTabs', function($compile) {
             return {
                 restrict: 'E',
                 replace: true,
+                scope: {
+                    tabs: '=tabData'
+                },
                 template: '<div role="tabpanel">TABS</div>',
                 link: function(scope,elem,attr) {
                     var windowHeight = angular.element(window).outerHeight();
                     elem.css('minHeight',windowHeight);
-                    scope.tabData = [
-                        {
-                            id: 'tab1',
-                            name: 'TAB 1',
-                            partial: 'tab1.html'
-                        },
-                        {
-                            id: 'tab2',
-                            name: 'TAB 2',
-                            partial: 'tab2.html'
-                        }
-                    ];
                     var tabsNavHtml = '<ul class="nav nav-tabs" role="tablist">';
                     var tabsContentHtml = '<div class="tab-content">';
-                    for (var t = 0; t < scope.tabData.length; t++) {
-                        var tab = scope.tabData[t];
+                    for (var t = 0; t < scope.tabs.length; t++) {
+                        var tab = scope.tabs[t];
                         var animationCSS = ' fade';
                         var defaultTab = '';
                         if (t === 0) {
@@ -34,11 +25,51 @@ angular.module('matchflow.directives', []).
                             defaultTab = ' class="active"';
                         }
                         tabsNavHtml += '<li id="'+tab.id+'_tab" role="presentation"'+defaultTab+'><a href="#'+tab.id+'" aria-controls="settings" role="tab" data-toggle="tab">'+tab.name+'</a></li>';
-                        tabsContentHtml += '<div id="'+tab.id+'" role="tabpanel" class="tab-pane'+animationCSS+'">...</div>';
+                        tabsContentHtml += '<div id="'+tab.id+'" role="tabpanel" class="mf-tab-container tab-pane'+animationCSS+'">'+
+                            '<mf-tab-feed feed-filter="\''+tab.filter+'\'"></mf-tab-feed>' +
+                        '</div>';
                     }
                     tabsNavHtml += '</ul>';
                     tabsContentHtml += '</div>';
-                    elem.html(tabsNavHtml+tabsContentHtml);
+                    elem.html($compile(tabsNavHtml+tabsContentHtml)(scope));
+                }
+            };
+        }
+    ).directive(
+        'mfTabFeed', function($compile) {
+            return {
+                restrict: 'E',
+                replace: true,
+                scope: {
+                    filter: '=feedFilter'
+                },
+                template: '<div class="list-group"></div>',
+                link: function(scope,elem,attr) {
+                    // TODO infinite scroller
+                    // TODO URL feed loader
+                    var feedData = [
+                        {
+                            id: 'post1',
+                            title: 'Example Post 1',
+                            description: 'This is an example post demonstrating feed data.',
+                            link: '#'
+                        },
+                        {
+                            id: 'post2',
+                            title: 'Example Post 2',
+                            description: 'This is an example post demonstrating feed data.',
+                            link: '#'
+                        }
+                    ];
+                    var feedHtml = '';
+                    for (var f = 0; f < feedData.length; f++) {
+                        var dataItem = feedData[f];
+                        feedHtml += '<a href="'+dataItem.link+'" id="'+dataItem.id+'" class="list-group-item">'+
+                                '<h4 class="list-group-item-heading">'+dataItem.title+'</h4>'+
+                                '<p class="list-group-item-text">'+dataItem.description+'</p>'+
+                                '</a>';
+                    }
+                    elem.html($compile(feedHtml)(scope));
                 }
             };
         }
@@ -47,43 +78,14 @@ angular.module('matchflow.directives', []).
             return {
                 restrict: 'E',
                 replace: true,
+                scope: {
+                    notes: '=noteData'
+                },
                 template: '<div></div>',
                 link: function(scope,elem,attr) {
-                    scope.noteData = [
-                        {
-                            id: 'note1',
-                            name: 'NOTE 1',
-                            type: 'standard',
-                            action: ''
-                        },
-                        {
-                            id: 'note2',
-                            name: 'NOTE 2',
-                            type: 'info',
-                            action: ''
-                        },
-                        {
-                            id: 'note3',
-                            name: 'NOTE 3',
-                            type: 'success',
-                            action: ''
-                        },
-                        {
-                            id: 'note4',
-                            name: 'NOTE 4',
-                            type: 'critical',
-                            action: ''
-                        },
-                        {
-                            id: 'note5',
-                            name: 'NOTE 5',
-                            type: 'warning',
-                            action: ''
-                        }
-                    ];
                     var listHtml = '<ul class="mf-notes">';
-                    for (var l = 0; l < scope.noteData.length; l++) {
-                        var note = scope.noteData[l];
+                    for (var l = 0; l < scope.notes.length; l++) {
+                        var note = scope.notes[l];
                         listHtml += '<li id="'+note.id+'" class="'+note.type+'">'+note.name+'</li>';
                     }
                     listHtml += '</ul>';
@@ -121,27 +123,32 @@ angular.module('matchflow.directives', []).
             restrict: 'E',
             template: '<div></div>',
             link: function(scope, element) {
+                var content = '' +
+                    '<div class="form-inline">'+
+                        '<div class="form-group">'+
+                            '<input type="text" ng-model="manageEvents.eventGroupToAdd.name" class="form-control" style="width:180px;"/> '+
+                            '<input type="text" ng-model="manageEvents.eventGroupToAdd.color" class="form-control" style="width:80px;"/> '+
+                            '<button class="btn btn-sm btn-primary" ng-click="manageEvents.addEventGroup()"><i class="glyphicon small-inverted glyphicon-plus"></i></button>'+
+                        '</div>'+
+                    '</div>'+
+                    '<div id="eventManagerGroups"></div>';
+                element.html($compile(content)(scope.$parent));
                 scope.$watch(
                     'localEventGroupData',
                     function(newList,oldList) {
-                        if (newList !== undefined) {
+                        if (newList !== undefined && oldList === undefined && newList.length===0 ||
+                                newList !== undefined && oldList !== undefined && newList.length !== oldList.length) {
                             // only update if the length is different between the lists, not for every single edit
-                            var content = '<div class="form-inline">'+
-                                              '<div class="form-group">'+
-                                                  '<input type="text" ng-model="manageEvents.eventGroupToAdd.name" class="form-control" style="width:180px;"/> '+
-                                                  '<input type="text" ng-model="manageEvents.eventGroupToAdd.color" class="form-control" style="width:80px;"/> '+
-                                                  '<button class="btn btn-sm btn-primary" ng-click="manageEvents.addEventGroup()"><i class="glyphicon small-inverted glyphicon-plus"></i></button>'+
-                                              '</div>'+
-                                          '</div>';
+                            var groupHTML = '';
                             for (var i = 0; i < newList.length; i++) {
                                 var eventGroup = newList[i];
-                                content += '<div class="form-inline" style="margin-top:5px;">'+
+                                groupHTML += '<div class="form-inline" style="margin-top:5px;">'+
                                                '<div class="form-group" style="width:100%;">'+
                                                    '<mf-event-group event-data="manageEvents.eventGroupMap[\''+eventGroup.name+'\']" event-group-name="'+eventGroup.name+'" event-group-index="'+i+'" event-group-color="'+eventGroup.color+'" />'+
                                                '</div>'+
                                            '</div>';
                             }
-                            element.html($compile(content)(scope.$parent));
+                            element.find('#eventManagerGroups').html($compile(groupHTML)(scope.$parent));
                         }
                     }, 
                     true
@@ -157,42 +164,46 @@ angular.module('matchflow.directives', []).
             },
             template: '<div></div>',
             link: function(scope, element, attrs) {
+                // only update if the length is different between the lists, not for every single edit
+                scope.eventGroupID = 'event_group_'+attrs.eventGroupName;
+                var eventGroupContent = ''+
+                    '<div class="panel-group" role="tablist" aria-multiselectable="true">'+
+                        '<div class="panel panel-default">'+
+                            '<div class="panel-heading" role="tab" id="'+attrs.eventGroupName+'_heading">'+
+                                '<h4 class="panel-title" style="position:relative;">'+
+                                    '<a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseOne" aria-expanded="true" aria-controls="collapseOne">'+
+                                        attrs.eventGroupName+' (@'+attrs.eventGroupName+')'+
+                                    '</a>'+
+                                    '<a style="position:absolute; right:0px;" ng-click="manageEvents.removeEventGroup('+attrs.eventGroupIndex+')"><i class="glyphicon glyphicon-trash"></i></a>'+
+                                '</h4>'+
+                            '</div>'+
+                            '<div id="'+attrs.eventGroupName+'_collapse" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="'+attrs.eventGroupName+'_heading">'+
+                                '<div class="form-inline" style="margin-left:10px; margin-top:5px;">'+
+                                    '<div class="form-group">'+
+                                        '<input type="text" placeholder="name" ng-model="manageEvents.eventGroupMap[\''+attrs.eventGroupName+'\'].eventToAdd.name" class="form-control" style="width:180px;" /> '+
+                                        '<input type="text" placeholder="before" ng-model="manageEvents.eventGroupMap[\''+attrs.eventGroupName+'\'].eventToAdd.before" class="form-control" style="width:80px;" /> '+
+                                        '<input type="text" placeholder="after" ng-model="manageEvents.eventGroupMap[\''+attrs.eventGroupName+'\'].eventToAdd.after" class="form-control" style="width:80px;" /> '+
+                                        '<button class="btn btn-round btn-sm btn-primary" ng-click="manageEvents.addEventToGroup(\''+attrs.eventGroupName+'\')"><i class="glyphicon small-inverted glyphicon-plus"></i></button>'+
+                                    '</div>'+
+                                '</div>'+
+                                '<div id="'+scope.eventGroupID+'" class="form-group" style="width:100%; padding-bottom: 5px;">'+
+                                '</div>'+ // inline content
+                            '</div>'+ //collapse panel
+                        '</div>'+ // panel
+                    '</div>'; // panel group
+                scope.localEventList = scope.localEventData.eventList;
+                element.html($compile(eventGroupContent)(scope.$parent));
                 scope.$watch(
-                    'localEventData',
-                    function(newData,oldData) {
-                        if (newData.eventList !== undefined) {
-                            // only update if the length is different between the lists, not for every single edit
-                            var eventGroupContent = '<div class="panel-group" role="tablist" aria-multiselectable="true">'+
-                                              '<div class="panel panel-default">'+
-                                                  '<div class="panel-heading" role="tab" id="'+attrs.eventGroupName+'_heading">'+
-                                                      '<h4 class="panel-title" style="position:relative;">'+
-                                                          '<a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseOne" aria-expanded="true" aria-controls="collapseOne">'+
-                                                              attrs.eventGroupName+
-                                                          '</a>'+
-                                                          '<a style="position:absolute; right:0px;" ng-click="manageEvents.removeEventGroup('+attrs.eventGroupIndex+')"><i class="glyphicon glyphicon-trash"></i></a>'+
-                                                      '</h4>'+
-                                                  '</div>'+
-                                                  '<div id="'+attrs.eventGroupName+'_collapse" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="'+attrs.eventGroupName+'_heading">'+
-                                                      '<div class="form-inline" style="margin-left:10px; margin-top:5px;">'+
-                                                          '<div class="form-group">'+
-                                                              '<input type="text" placeholder="name" ng-model="manageEvents.eventGroupMap[\''+attrs.eventGroupName+'\'].eventToAdd.name" class="form-control" style="width:180px;" /> '+
-                                                              '<input type="text" placeholder="before" ng-model="manageEvents.eventGroupMap[\''+attrs.eventGroupName+'\'].eventToAdd.before" class="form-control" style="width:80px;" /> '+
-                                                              '<input type="text" placeholder="after" ng-model="manageEvents.eventGroupMap[\''+attrs.eventGroupName+'\'].eventToAdd.after" class="form-control" style="width:80px;" /> '+
-                                                              '<button class="btn btn-round btn-sm btn-primary" ng-click="manageEvents.addEventToGroup(\''+attrs.eventGroupName+'\')"><i class="glyphicon small-inverted glyphicon-plus"></i></button>'+
-                                                          '</div>'+
-                                                      '</div>'+
-                                                      '<div class="form-group" style="width:100%; padding-bottom: 5px;">';
+                    'localEventList',
+                    function(newEventList) {
+                        if (newEventList !== undefined) {
+                            var eventsHTML = '';
                             // now populate the content
-                            for (var i = 0; i < newData.eventList.length; i++) {
-                                var eventData = newData.eventList[i];
-                                eventGroupContent += '<mf-event event-name="'+eventData.name+'" event-index="'+i+'" event-group-name="'+attrs.eventGroupName+'" event-before="'+eventData.before+'" event-after="'+eventData.after+'" event-color="'+attrs.eventGroupColor+'"></mf-event>';
+                            for (var i = 0; i < newEventList.length; i++) {
+                                var eventData = newEventList[i];
+                                eventsHTML += '<mf-event event-name="'+eventData.name+'" event-index="'+i+'" event-group-name="'+attrs.eventGroupName+'" event-before="'+eventData.before+'" event-after="'+eventData.after+'" event-color="'+attrs.eventGroupColor+'"></mf-event>';
                             }
-
-                            eventGroupContent += '</div>'+ // inline content
-                                             '</div>'+ //collapse panel
-                                         '</div>'+ // panel
-                                     '</div>'; // panel group
-                            element.html($compile(eventGroupContent)(scope.$parent));
+                            element.find('#'+scope.eventGroupID).html($compile(eventsHTML)(scope.$parent));
                             
                         }
                     }, 
@@ -220,6 +231,59 @@ angular.module('matchflow.directives', []).
                                   '</a>'+
                               '</div>';
                 element.html($compile(content)(scope));
+            }
+        };
+    }).directive('mfAutocomplete', function($compile) {
+        return {
+            replace: true,
+            scope: {
+                autocompleteData: '=searchData',
+                searchValue: '=ngModel',
+                mode: '=selectMode' // single or multiple
+            },
+            restrict: 'E',
+            template: '<div class="mf-autocomplete-container">'+
+                          '<input type="text" ng-model="searchValue" ng-blur="resultSelected" class="form-control" />'+
+                          '<div class="mf-autocomplete-list" style="display:none;"></div>'+
+                      '</div>',
+            link: function(scope, element, attrs) {
+                scope.resultSelected = function(e) {
+                    // TODO add selected result to the selection box and clear the input area
+                    element.find('.mf-autocomplete-list').css('display','none');
+                };
+                scope.$watch(
+                    'searchValue',
+                    function(newValue,oldValue) {
+                        var searchResults = '<ul class="list-group">';
+                        
+                        if (scope.searchValue.indexOf('@')===0) {
+                            var searchTerm = scope.searchValue.replace('@','');
+                            var matchFound = false;
+                            for (var i = 0; i < scope.autocompleteData.length; i++) {
+                                var result = scope.autocompleteData[i];
+                                if (result.name !== undefined && result.name.indexOf(searchTerm)>=0) {
+                                    matchFound = true;
+                                    searchResults += '<li class="list-group-item"><a ng-click="resultSelected()">'+result.name+'</a></li>';
+                                }
+                            }
+                            if (!matchFound) {
+                                searchResults += '<li class="list-group-item" ng-click="resultSelected">no matches found</li>';
+                            }
+                        } else {
+                            searchResults += '<li class="list-group-item" ng-click="resultSelected">please use @ matcher</li>';
+                        }
+                        searchResults += '</ul>';
+                        var width = element.find('input').outerWidth();
+                        element.find('.mf-autocomplete-list').html($compile(searchResults)(scope)).css('width',width+'px');
+                        if (newValue.length > 0) {
+                            element.find('.mf-autocomplete-list').css('display','block');
+                        } else {
+                            element.find('.mf-autocomplete-list').css('display','none');
+                        }
+                        
+                    }, 
+                    true
+                );
             }
         };
     }).directive('mfUserProfile', function($compile) {

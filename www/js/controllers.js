@@ -22,6 +22,50 @@ angular.module('matchflow.controllers', [])
             teamList: [],
             eventGroupList: [],
             projectList: [],
+            feedList: [
+                {
+                    id: 'tab1',
+                    name: 'TAB 1',
+                    filter: ''
+                },
+                {
+                    id: 'tab2',
+                    name: 'TAB 2',
+                    filter: ''
+                }
+            ],
+            notes: [
+                {
+                    id: 'note1',
+                    name: 'NOTE 1',
+                    type: 'standard',
+                    action: ''
+                },
+                {
+                    id: 'note2',
+                    name: 'NOTE 2',
+                    type: 'info',
+                    action: ''
+                },
+                {
+                    id: 'note3',
+                    name: 'NOTE 3',
+                    type: 'success',
+                    action: ''
+                },
+                {
+                    id: 'note4',
+                    name: 'NOTE 4',
+                    type: 'critical',
+                    action: ''
+                },
+                {
+                    id: 'note5',
+                    name: 'NOTE 5',
+                    type: 'warning',
+                    action: ''
+                }
+            ],
             permissions: [
                 { // default, everyone should have this
                     id: 'profileManager',
@@ -34,6 +78,10 @@ angular.module('matchflow.controllers', [])
                 {
                     id: 'leagueManager',
                     name: 'League Manager'
+                },
+                {
+                    id: 'reportManager',
+                    name: 'Report Manager'
                 },
                 {
                     id: 'subscriptionManager',
@@ -190,7 +238,6 @@ angular.module('matchflow.controllers', [])
             }
         };
         $scope.timeoutID = $scope.callback();
-        
         /*************************************/
         // PROJECT SPECIFIC
         $scope.currentProjectConfiguration = {
@@ -206,8 +253,12 @@ angular.module('matchflow.controllers', [])
             name: '',
             selectedTeams: '',
             selectedLeague: '',
-            selectedEventGroups: '',
-            selectedGameDate: ''
+            selectedEventGroups: '',// we save a string of references
+            selectedGameDate: '',
+            // INHERITED DATA
+            // we pull through important references for the create project dialog
+            eventGroupList : $scope.$parent.manageEvents.eventGroupList,
+            eventGroupMap : $scope.$parent.manageEvents.eventGroupMap
         };
 //        
 //        $scope.manageTemplates = {

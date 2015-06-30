@@ -57,15 +57,15 @@
                 <table>
                     <tr>
                         <td colspan="2">
-                            <tag-line counter="timestamp" tagslist="currentProjectConfiguration.tags" playstatus="play" ></tag-line>
+                            <!--<tag-line counter="timestamp" tagslist="currentProjectConfiguration.tags" playstatus="play" ></tag-line>-->
                         </td>
                     </tr>
                     <tr>
                         <td>
-                            <tag-holder datalist="currentProjectConfiguration.selectedTemplate"></tag-holder>
+                            <!--<tag-holder datalist="currentProjectConfiguration.selectedTemplate"></tag-holder>-->
                         </td>
                         <td>
-                            <template-list datalist="user.tagTemplateList" selectedtemplate="currentProjectConfiguration.selectedTemplate"></template-list>
+                            <!--<template-list datalist="user.tagTemplateList" selectedtemplate="currentProjectConfiguration.selectedTemplate"></template-list>-->
                         </td>
                     </tr>
                 </table>
@@ -99,7 +99,7 @@
                             </div>
                             <div class="input-group">
                                 <span class="input-group-addon">Event Groups:</span>
-                                <input type="text" ng-model="newProject.selectedEventGroups" class="form-control"/>
+                                <mf-autocomplete search-data="newProject.eventGroupList" ng-model="newProject.selectedEventGroups"></mf-autocomplete>
                             </div>
                         </div>
                     </div>
@@ -188,7 +188,7 @@
                         <p class="dialog-info-text">
                             Add/Remove Teams by using the table below:
                         </p>
-                        <team-list datalist="manageTeams.teamList" />
+                        <!--<team-list datalist="manageTeams.teamList" />-->
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -209,7 +209,7 @@
                         <p class="dialog-info-text">
                             Add/Remove Seasons by using the table below:
                         </p>
-                        <season-list datalist="manageSeasons.seasonList" />
+                        <!--<season-list datalist="manageSeasons.seasonList" />-->
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
