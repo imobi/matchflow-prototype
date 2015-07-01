@@ -127,7 +127,8 @@ angular.module('matchflow.directives', []).
                     '<div class="form-inline">'+
                         '<div class="form-group">'+
                             '<input type="text" ng-model="manageEvents.eventGroupToAdd.name" class="form-control" style="width:180px;"/> '+
-                            '<input type="text" ng-model="manageEvents.eventGroupToAdd.color" class="form-control" style="width:80px;"/> '+
+                            '<input type="text" placeholder="tag color" ng-model="manageEvents.eventGroupToAdd.bgColor" class="form-control" style="width:80px;"/> '+
+                            '<input type="text" placeholder="text color" ng-model="manageEvents.eventGroupToAdd.txtColor" class="form-control" style="width:80px;"/> '+
                             '<button class="btn btn-sm btn-primary" ng-click="manageEvents.addEventGroup()"><i class="glyphicon small-inverted glyphicon-plus"></i></button>'+
                         '</div>'+
                     '</div>'+
@@ -144,7 +145,7 @@ angular.module('matchflow.directives', []).
                                 var eventGroup = newList[i];
                                 groupHTML += '<div class="form-inline" style="margin-top:5px;">'+
                                                '<div class="form-group" style="width:100%;">'+
-                                                   '<mf-event-group event-data="manageEvents.eventGroupMap[\''+eventGroup.name+'\']" event-group-name="'+eventGroup.name+'" event-group-index="'+i+'" event-group-color="'+eventGroup.color+'" />'+
+                                                   '<mf-event-group event-data="manageEvents.eventGroupMap[\''+eventGroup.name+'\']" event-group-name="'+eventGroup.name+'" event-group-index="'+i+'" event-group-text-color="'+eventGroup.txtColor+'" event-group-color="'+eventGroup.bgColor+'" />'+
                                                '</div>'+
                                            '</div>';
                             }
@@ -201,7 +202,7 @@ angular.module('matchflow.directives', []).
                             // now populate the content
                             for (var i = 0; i < newEventList.length; i++) {
                                 var eventData = newEventList[i];
-                                eventsHTML += '<mf-event event-name="'+eventData.name+'" event-index="'+i+'" event-group-name="'+attrs.eventGroupName+'" event-before="'+eventData.before+'" event-after="'+eventData.after+'" event-color="'+attrs.eventGroupColor+'"></mf-event>';
+                                eventsHTML += '<mf-event event-name="'+eventData.name+'" event-index="'+i+'" event-group-name="'+attrs.eventGroupName+'" event-before="'+eventData.before+'" event-after="'+eventData.after+'"  event-text-color="'+attrs.eventGroupTextColor+'" event-color="'+attrs.eventGroupColor+'"></mf-event>';
                             }
                             element.find('#'+scope.eventGroupID).html($compile(eventsHTML)(scope.$parent));
                             
@@ -224,7 +225,7 @@ angular.module('matchflow.directives', []).
                 scope.addEvent = function() {
                     //scope.manageEvents.addEventTagToEventTagLine(scope.id);
                 };
-                var content = '<div ng-click="addEvent()" class="mf-event-tag" style="background-color:'+attrs.eventColor+';">'+
+                var content = '<div ng-click="addEvent()" class="mf-event-selector" style="color:'+attrs.eventTextColor+'; background-color:'+attrs.eventColor+';">'+
                                   attrs.eventName+
                                   '<a ng-click="removeEvent()" style="position:absolute; right:10px;">'+
                                       '<i class="glyphicon glyphicon-trash"></i>'+
@@ -278,22 +279,18 @@ angular.module('matchflow.directives', []).
                     function(newValue,oldValue) {
                         var searchResults = '<ul class="list-group">';
                         
-                        if (scope.searchValue.indexOf('@')===0) {
-                            var searchTerm = scope.searchValue.replace('@','');
-                            var matchFound = false;
-                            for (var i = 0; i < scope.autocompleteData.length; i++) {
-                                var result = scope.autocompleteData[i];
-                                if (result.name !== undefined && result.name.indexOf(searchTerm)>=0) {
-                                    matchFound = true;
-                                    searchResults += '<li class="list-group-item"><a ng-click="resultSelected(\''+result.name+'\')">'+result.name+'</a></li>';
-                                }
+                        var matchFound = false;
+                        for (var i = 0; i < scope.autocompleteData.length; i++) {
+                            var result = scope.autocompleteData[i];
+                            if (result.name !== undefined && result.name.indexOf(scope.searchValue)>=0) {
+                                matchFound = true;
+                                searchResults += '<li class="list-group-item"><a ng-click="resultSelected(\''+result.name+'\')"><div class="mf-fully-clickable">'+result.name+'</div></a></li>';
                             }
-                            if (!matchFound) {
-                                searchResults += '<li class="list-group-item">no matches found</li>';
-                            }
-                        } else {
-                            searchResults += '<li class="list-group-item">please use @ matcher</li>';
                         }
+                        if (!matchFound) {
+                            searchResults += '<li class="list-group-item">no matches found</li>';
+                        }
+                        
                         searchResults += '</ul>';
                         var width = element.find('input').outerWidth();
                         element.find('.mf-autocomplete-list').html($compile(searchResults)(scope)).css('width',width+'px');
@@ -322,7 +319,7 @@ angular.module('matchflow.directives', []).
                                     }
                                 }
                             }
-                            selectedGroups += '<li class="list-group-item" style="position:relative; background-color:'+group.color+';">'+group.name+' ['+eventNames+']<a ng-click="removeSelected(\''+group.name+'\')" class="mf-icon-border"><i class="glyphicon glyphicon-trash"></i></a></li>';
+                            selectedGroups += '<li class="list-group-item" style="position:relative; color:'+group.txtColor+'; background-color:'+group.bgColor+';">'+group.name+' ['+eventNames+']<a ng-click="removeSelected(\''+group.name+'\')" class="mf-icon-border"><i class="glyphicon glyphicon-trash"></i></a></li>';
                         }
                         element.find('.mf-selected-list').html($compile(selectedGroups)(scope));
                     }, 
@@ -452,13 +449,17 @@ angular.module('matchflow.directives', []).
             },
             template: '<div></div>'
         };
-    }).directive('tagLine', function($compile) {
+    }).directive('mfEventTagLines', function($compile) {
         return {
             scope: {
                 timestamp: '=counter',
-                tags: '=tagslist',
-                moveTagLine: '=playstatus'
+                tags: '=eventTagLists',
+                moveTagLine: '=playStatus'
             },
+            template: '<div class="row mf-event-tag-line-container">' +
+                          '<div id="tagContainer" class="mf-event-tag-line-markers" style="width: {{ totalDuration }}px; margin-left: -{{ currentPosition }}px;"></div>' +
+                          '<div class="mf-time-bar">' +
+                      '</div>',
             replace: true,
             restrict: 'E',
             link: function(scope, element, attr) {
@@ -513,78 +514,52 @@ angular.module('matchflow.directives', []).
                     }, 
                     true
                 );
-            },
-            template: '<div class="tag-line-container">' +
-                          '<div id="tagContainer" style="position:relative; background-image: url(\'img/positionmarker.png\'); left:50%; width: {{ totalDuration }}px; margin-left: -{{ currentPosition }}px; top:0px; height:80px; background-repeat: repeat-x;"></div>' +
-                          '<div style="position:absolute; border:solid 1px #006dcc; width:1px; height:98px; left:406px; top:0px;">' +
-                      '</div>'
+            }
         };
-    }).directive('tagHolder', function($compile) {
+    }).directive('mfEventTagArea', function($compile) {
         return {
             scope: {
-                tagHolder : '=datalist'
+                localData : '=eventGroupData'
             },
+            template: '<div class="container-fluid"></div>',
             replace: true,
             restrict: 'E',
-            link: function(scope, element) {
+            link: function(scope, element, attrs) {
                 scope.$watch(
-                    'tagHolder',
-                    function(newSelectedTags,oldSelectedTags) {
-                        if (newSelectedTags && newSelectedTags.tags && newSelectedTags.tags.length === 0 || oldSelectedTags) {
-                            var MAX_COLS = 8;
-                            var newList = newSelectedTags.tags;
-                            // only update if the length is different between the lists, not for every single edit
-                            element.children().remove();
-                            element.append($compile('<table cellpadding="5" id="tagHolder"></table>')(scope.$parent));
-                            var tableElement = angular.element('#tagHolder');
-                            var content = "";
-                            var TOTAL_CELLS = newList.length + 1;
-                            var EXTRA_COLS = TOTAL_CELLS % MAX_COLS;
-                            var TOTAL_FULL_ROWS = (TOTAL_CELLS - EXTRA_COLS) / MAX_COLS;
-                            var rowCounter = 0;
-                            var colCounter = 0;
-                            content += '<tr>';
-                            // run through ALL newList elements, and full up rows, if there are extra, they are added into an incomplete row
-                            for (var i = 0; i < newList.length; i++) {
-                                if (rowCounter < TOTAL_FULL_ROWS && colCounter < MAX_COLS) {
-                                    content += '<td><tag name="'+newList[i].name+'" before="'+newList[i].before+'" after="'+newList[i].after+'" index="'+i+'"></tag></td>';
-                                    colCounter++;
-                                    if (colCounter === MAX_COLS) {
-                                        colCounter = 0;
-                                        rowCounter++;
-                                        content += '</tr>';
-                                        if (rowCounter < TOTAL_FULL_ROWS || rowCounter === TOTAL_FULL_ROWS && EXTRA_COLS > 0) {
-                                            content += '<tr>';
-                                        }
-                                    }
-                                } else if (rowCounter === TOTAL_FULL_ROWS) {
-                                    content += '<td><tag name="'+newList[i].name+'" before="'+newList[i].before+'" after="'+newList[i].after+'" index="'+i+'"></tag></td>';
-                                    colCounter++;
-                                }
+                    'localData',
+                    function(newVal,oldVal) {
+                        var contentHTML = '';
+                        for (var r = 0; r < scope.localData.length; r++) {
+                            contentHTML += '<div class="row mf-event-tag-container">';
+                            var group = scope.localData[r];
+                            contentHTML += '<div class="mf-event-group-title" style="color:'+group.bgColor+';">'+group.name+'</div>';
+                            for (var c = 0; c < group.eventList.length; c++) {
+                                var event = group.eventList[c];
+                                contentHTML += '<div class="col-lg-2"><div class="mf-event-tag" style="background-color:'+group.bgColor+'; color:'+group.txtColor+';">'+event.name+'</div></div>';
                             }
-                            if (EXTRA_COLS > 0) {
-                                // need to just full up the extra columns before closing the row
-                                content += '<td><button ng-click="showAddTagDialog()">New Tag</button></td>';
-                                colCounter++;
-                                if (colCounter < MAX_COLS) {
-                                    // fill up with empty columns
-                                    for (var j = colCounter; j < MAX_COLS; j++) {
-                                        content += '<td></td>';
-                                    }
-                                }
-                                // and close this row off
-                                content += '</tr>';
-                            } else {
-                                // add the add tag button here as loop finishes prematurely
-                                content += '<td><button ng-click="showAddTagDialog()">New Tag</button></td></tr>';
-                            }
-                            tableElement.append($compile(content)(scope.$parent));
+                            contentHTML += '</div>';
                         }
-                    }, 
+                        element.append($compile(contentHTML)(scope));
+                    },
                     true
                 );
+            }            
+        };
+    }).directive('mfVideoPlayer', function($compile) {
+        return {
+            scope: {
+                
             },
-            template: '<div class="tag-holder"></div>'
+            // TODO make this player responsive, change video size for screen
+            // we also want nodes, playback touch areas etc
+            template: '<div class="row mf-video-player-container"><div id="videoPlayerHolder" class="col-lg-12"></div></div>',
+            replace: true,
+            restrict: 'E',
+            link: function(scope, element, attrs) {
+                var contentHTML = 'Video Player';
+                
+                element.find('#videoPlayerHolder').append($compile(contentHTML)(scope));
+            }            
         };
     });
 

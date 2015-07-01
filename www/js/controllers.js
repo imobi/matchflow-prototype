@@ -104,7 +104,8 @@ angular.module('matchflow.controllers', [])
         $scope.manageEvents = {
             eventGroupToAdd: {
                 name: '',
-                color: 'green',
+                bgColor: 'green',
+                txtColor: 'white',
                 eventToAdd: { 
                     name: '',
                     before: 500,
@@ -125,7 +126,8 @@ angular.module('matchflow.controllers', [])
             clearInput: function() {
                 $scope.manageEvents.eventGroupToAdd = {
                     name: '',
-                    color: 'green',
+                    bgColor: 'green',
+                    txtColor: 'white',
                     eventToAdd: { 
                         name: '',
                         before: 500,
@@ -240,21 +242,51 @@ angular.module('matchflow.controllers', [])
         $scope.timeoutID = $scope.callback();
         /*************************************/
         // PROJECT SPECIFIC
-        $scope.currentProjectConfiguration = {
+        $scope.currentProject = {
             id: '',
             name: '',
-            selectedTeams: '',
-            selectedLeague: '',
-            selectedEventGroups: '',
-            selectedGameDate: ''
+            teams: '',
+            league: '',
+            eventGroups: [],
+            creationDate: '',
+            gameDate: ''
         };
         // INPUT FORMS
         $scope.newProject = {
-            name: '',
-            selectedTeams: '',
-            selectedLeague: '',
-            selectedEventGroups: [],// we save an array of references
-            selectedGameDate: '',
+            name: 'test',
+            selectedTeams: 'test',
+            selectedLeague: 'test',
+            selectedEventGroups: [
+                {
+                    name: 'test tag group',
+                    bgColor: 'green',
+                    txtColor: 'white',
+                    eventList: [
+                        {
+                            name: 'first tag',
+                            before: 500,
+                            after: 500
+                        },{
+                            name: 'second tag',
+                            before: 500,
+                            after: 500
+                        }
+                    ]
+                },
+                {
+                    name: 'another test tag group',
+                    bgColor: 'dodgerblue',
+                    txtColor: 'orange',
+                    eventList: [
+                        {
+                            name: 'what',
+                            before: 500,
+                            after: 500
+                        }
+                    ]
+                }
+            ],// we save an array of references
+            selectedGameDate: '000',
             // INHERITED DATA
             // we pull through important references for the create project dialog
             eventGroupList : $scope.$parent.manageEvents.eventGroupList,
@@ -353,19 +385,23 @@ angular.module('matchflow.controllers', [])
                     $scope.newProject.selectedLeague !== undefined && $scope.newProject.selectedLeague.length > 0 &&
                     $scope.newProject.selectedEventGroups !== undefined && $scope.newProject.selectedEventGroups.length > 0 &&
                     $scope.newProject.selectedGameDate !== undefined && $scope.newProject.selectedGameDate.length > 0) {
-                $scope.currentProjectConfiguration.name = $scope.newProject.name;
-                $scope.currentProjectConfiguration.id = $scope.replaceAll($scope.newProject.name, ' ', '_');
-                $scope.currentProjectConfiguration.selectedLeague = $scope.newProject.selectedLeague;
-                $scope.currentProjectConfiguration.selectedTeams = $scope.newProject.selectedTeams;
-                $scope.currentProjectConfiguration.selectedEventGroups = $scope.newProject.selectedEventGroups;
-                $scope.currentProjectConfiguration.selectedGameDate = $scope.newProject.selectedGameDate;
+                $scope.currentProject.name = $scope.newProject.name;
+                $scope.currentProject.id = $scope.replaceAll($scope.newProject.name, ' ', '_');
+                $scope.currentProject.league = $scope.newProject.selectedLeague;
+                $scope.currentProject.teams = $scope.newProject.selectedTeams;
+                $scope.currentProject.eventGroups = $scope.newProject.selectedEventGroups;
+                $scope.currentProject.gameDate = $scope.newProject.selectedGameDate;
                 angular.element('#newProjectDetails').modal('hide');
                 $scope.newProject = {
                     name: '',
                     selectedTeams: '',
                     selectedLeague: '',
-                    selectedEventGroups: '',
-                    selectedGameDate: ''
+                    selectedEventGroups: [],// we save an array of references
+                    selectedGameDate: '',
+                    // INHERITED DATA
+                    // we pull through important references for the create project dialog
+                    eventGroupList : $scope.$parent.manageEvents.eventGroupList,
+                    eventGroupMap : $scope.$parent.manageEvents.eventGroupMap
                 };
             } else {
                 // TODO form field validation
