@@ -207,7 +207,7 @@ angular.module('matchflow.controllers', [])
         // -- end: event categories
     }]).controller('DashboardController', ['$scope', function ($scope) {
 
-    }]).controller('AnalyzerController', ['$scope', '$compile', '$http', '$location', '$route', '$timeout', function ($scope, $compile, $http, $location, $route, $timeout) {
+    }]).controller('AnalyzerController', ['$scope', '$compile', '$http', '$location', '$route', '$timeout','$interval', function ($scope, $compile, $http, $location, $route, $interval) {
         // we expecting a project ID in the URL
         var projectID = $route.current.params['pid'];
         if (projectID !== undefined) { // if there is one, load that project
@@ -219,27 +219,7 @@ angular.module('matchflow.controllers', [])
         $scope.replaceAll = function (str, find, replace) {
             return str.replace(new RegExp(find, 'g'), replace);
         };
-        $scope.timestamp = new Date().getTime();
-        $scope.play = false;
-        /*--- this counter is used to synchronize adding of tags to taglines ---*/
-        $scope.callback = function () {
-            // get scope here
-            var scope = angular.element('#pageContent').scope();
-            if (scope) {
-                if (scope.timeoutID) {
-                    clearTimeout(scope.timeoutID);
-                }
-                scope.timestamp = new Date().getTime() / 100;
-                var phase = scope.$root.$$phase;
-                if (phase !== '$apply' && phase !== '$digest') {
-                    scope.$apply();
-                }
-                return setTimeout(scope.callback, 50);
-            } else {
-                return false;
-            }
-        };
-        $scope.timeoutID = $scope.callback();
+        
         /*************************************/
         // PROJECT SPECIFIC
         $scope.currentProject = {
@@ -248,8 +228,18 @@ angular.module('matchflow.controllers', [])
             teams: '',
             league: '',
             eventGroups: [],
+            addedTags: [],
             creationDate: '',
             gameDate: ''
+        };
+        // VIDEO PLAYER
+        $scope.videoPlayer = {
+            timestamp : new Date().getTime(),
+            status: 'paused',
+            PAUSED:'paused',
+            PLAYING:'playing',
+            FORWARD:'fastforwarding',
+            REWIND:'rewinding'
         };
         // INPUT FORMS
         $scope.newProject = {
@@ -286,97 +276,28 @@ angular.module('matchflow.controllers', [])
                     ]
                 }
             ],// we save an array of references
-            selectedGameDate: '000',
+            selectedGameDate: new Date(),
             // INHERITED DATA
             // we pull through important references for the create project dialog
             eventGroupList : $scope.$parent.manageEvents.eventGroupList,
             eventGroupMap : $scope.$parent.manageEvents.eventGroupMap
         };
-//        
-//        $scope.manageTemplates = {
-//            templateToAdd: {
-//                name: '',
-//                tags: []
-//            },
-//            addTemplate: function () {
-//                if ($scope.manageTemplates.templateToAdd && $scope.manageTemplates.templateToAdd.name && $scope.manageTemplates.templateToAdd.name.length > 0) {
-//                    $scope.user.tagTemplateList[$scope.user.tagTemplateList.length] = $scope.manageTemplates.templateToAdd;
-//                    $scope.manageTemplates.templateToAdd = {
-//                        name: '',
-//                        tags: []
-//                    };
-//                }
-//            },
-//            removeTemplate: function (index) {
-//                $scope.user.tagTemplateList.splice(index, 1);
-//            },
-//            selectTemplate: function (index) {
-//                $scope.currentProjectConfiguration.selectedTemplate = $scope.user.tagTemplateList[index];
-//            }
-//        };
-//        $scope.manageTags = {
-//            tagToAdd: {
-//                name: '',
-//                before: 1,
-//                after: 1
-//            },
-//            addTag: function () {
-//                if ($scope.manageTags.tagToAdd && $scope.manageTags.tagToAdd.name && $scope.manageTags.tagToAdd.name.length > 0) {
-//                    $scope.currentProjectConfiguration.selectedTemplate.tags[$scope.currentProjectConfiguration.selectedTemplate.tags.length] = $scope.manageTags.tagToAdd;
-//                }
-//                $scope.manageTags.tagToAdd = {
-//                    name: '',
-//                    before: 1,
-//                    after: 1
-//                };
-//            },
-//            removeTag: function (index) {
-//                $scope.currentProjectConfiguration.selectedTemplate.tags.splice(index, 1);
-//            }
-//        };
-//        $scope.showAddTagDialog = function () {
-//            angular.element('#createNewTag').modal('show');
-//        };
-        
-//        $scope.manageTeams = {
-//            teamToAdd: {
-//                name: ''
-//            },
-//            teamList: [],
-//            addTeam: function () {
-//                if ($scope.manageTeams.teamToAdd && $scope.manageTeams.teamToAdd.name && $scope.manageTeams.teamToAdd.name.length > 0) {
-//                    $scope.manageTeams.teamList[$scope.manageTeams.teamList.length] = $scope.manageTeams.teamToAdd;
-//                    $scope.manageTeams.teamToAdd = {
-//                        name: ''
-//                    };
-//                }
-//            },
-//            removeTeam: function (index) {
-//                $scope.manageTeams.teamList.splice(index, 1);
-//            }
-//        };
-//        $scope.showManageTeamsDialog = function () {
-//            $scope.manageTeams.teamToAdd = {
-//                name: ''
-//            };
-//            angular.element('#configureTeams').modal('show');
-//        };
-//        
         // Tagline functionality
         $scope.addTagToTagLine = function (tagID) {
-//            if ($scope.play) {
-//                // only add if currently playing
-//                var elementToAdd = angular.element('#' + tagID);
-//                var l = $scope.currentProjectConfiguration.tags.length;
-//                var time = $scope.timestamp;
-//                $scope.currentProjectConfiguration.tags[l] = {
-//                    id: 'tag_' + l + '_' + time,
-//                    time: time,
-//                    name: elementToAdd.data('tagname'),
-//                    before: elementToAdd.data('beforetag'),
-//                    after: elementToAdd.data('aftertag')
-//                };
-//            }
+            // TODO fix this
+            if ($scope.videoPlayer.status) {
+                // only add if currently playing
+                //var elementToAdd = angular.element('#' + tagID);
+                var l = $scope.currentProject.addedTags.length;
+                var time = $scope.videoPlayer.timestamp;
+                $scope.currentProject.addedTags[l] = {
+                    id: 'tag_' + l + '_' + time,
+                    time: time,
+                    name: 'name',//elementToAdd.data('tagname'),
+                    before: 500,//elementToAdd.data('beforetag'),
+                    after: 500//elementToAdd.data('aftertag')
+                };
+            }
         };
         // DIALOG FUNCTIONS
         $scope.createNewProject = function() {
@@ -384,7 +305,7 @@ angular.module('matchflow.controllers', [])
                     $scope.newProject.selectedTeams !== undefined && $scope.newProject.selectedTeams.length > 0 &&
                     $scope.newProject.selectedLeague !== undefined && $scope.newProject.selectedLeague.length > 0 &&
                     $scope.newProject.selectedEventGroups !== undefined && $scope.newProject.selectedEventGroups.length > 0 &&
-                    $scope.newProject.selectedGameDate !== undefined && $scope.newProject.selectedGameDate.length > 0) {
+                    $scope.newProject.selectedGameDate !== undefined) {
                 $scope.currentProject.name = $scope.newProject.name;
                 $scope.currentProject.id = $scope.replaceAll($scope.newProject.name, ' ', '_');
                 $scope.currentProject.league = $scope.newProject.selectedLeague;

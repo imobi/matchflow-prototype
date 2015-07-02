@@ -449,20 +449,35 @@ angular.module('matchflow.directives', []).
             },
             template: '<div></div>'
         };
-    }).directive('mfEventTagLines', function($compile) {
+    }).directive('mfEventTagLines', function($interval) {
         return {
             scope: {
-                timestamp: '=counter',
+                timestamp: '=ngModel',
                 tags: '=eventTagLists',
                 moveTagLine: '=playStatus'
             },
-            template: '<div class="row mf-event-tag-line-container">' +
+            template: '<div class="row mf-event-tag-line-container" style="position:relative;">' +
+                          '<div style="position:absolute; top:0px; left:0px; color: black;">{{ timestamp }}[{{ moveTagLine }}]</div>' +
                           '<div id="tagContainer" class="mf-event-tag-line-markers" style="width: {{ totalDuration }}px; margin-left: -{{ currentPosition }}px;"></div>' +
                           '<div class="mf-time-bar">' +
                       '</div>',
             replace: true,
             restrict: 'E',
             link: function(scope, element, attr) {
+                var intervalID = $interval(function() {
+                    scope.timestamp = new Date().getTime();
+                },1);
+                scope.killInterval = function() {
+                  if (angular.isDefined(intervalID)) {
+                    $interval.cancel(intervalID);
+                    intervalID = undefined;
+                  }
+                };
+                scope.$on('$destroy', function() {
+                    scope.killInterval();
+                });
+                
+                
                 scope.start = new Date().getTime()/100;
                 scope.end = new Date().getTime()/100+30*60*10;
                 scope.offset = 0;
@@ -480,20 +495,10 @@ angular.module('matchflow.directives', []).
                     'timestamp',
                     function(newVal,oldVal) {
                         // need to offset against time to allow for pauses
-                        if (newVal <= scope.end && scope.moveTagLine) {
-                            if (scope.offset > 0) {
-                                var offset = (new Date().getTime()/100) - scope.offset;
-                                if (offset > 0) {
-                                    scope.start += offset;
-                                    scope.end += offset;
-                                }
-                                scope.offset = 0;
-                            }
-                            scope.currentPosition = newVal-scope.start;
+                        if (scope.currentPosition <= scope.end && scope.moveTagLine==='playing') {
+                            scope.currentPosition++;
                         } else {
-                            if (scope.offset === 0) {
-                                scope.offset = new Date().getTime()/100;
-                            }
+                            
                         }
                     },
                     true
@@ -548,17 +553,34 @@ angular.module('matchflow.directives', []).
     }).directive('mfVideoPlayer', function($compile) {
         return {
             scope: {
-                
+                playerData : '=videoPlayerData'
             },
             // TODO make this player responsive, change video size for screen
             // we also want nodes, playback touch areas etc
-            template: '<div class="row mf-video-player-container"><div id="videoPlayerHolder" class="col-lg-12"></div></div>',
+            template: '<div class="row mf-video-player-container">'+
+                          '<div id="videoPlayerHolder" class="col-lg-12"></div>'+
+                      '</div>',
             replace: true,
             restrict: 'E',
             link: function(scope, element, attrs) {
-                var contentHTML = 'Video Player';
-                
-                element.find('#videoPlayerHolder').append($compile(contentHTML)(scope));
+                scope.play = function() {
+                    scope.playerData.status = scope.playerData.PLAYING;
+                };
+                scope.pause = function() {
+                    scope.playerData.status = scope.playerData.PAUSED;
+                };
+                var contentHTML = '<h1>Video Player</h1>'+
+                    '<div id="videoPlayerTimestamp"></div>'+
+                    '<button class="btn btn-success" ng-click="play()">Play</button>'+
+                    '<button class="btn btn-info" ng-click="pause()">Pause</button>';
+                element.find('#videoPlayerHolder').html($compile(contentHTML)(scope));
+                scope.$watch(
+                    'playerData.timestamp',
+                    function(){
+                        element.find('#videoPlayerTimestamp').html(scope.playerData.timestamp+'['+scope.playerData.status+']');
+                    },
+                    true
+                );
             }            
         };
     });
