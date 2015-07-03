@@ -207,7 +207,7 @@ angular.module('matchflow.controllers', [])
         // -- end: event categories
     }]).controller('DashboardController', ['$scope', function ($scope) {
 
-    }]).controller('AnalyzerController', ['$scope', '$compile', '$http', '$location', '$route', '$timeout','$interval', function ($scope, $compile, $http, $location, $route, $interval) {
+    }]).controller('AnalyzerController', ['$scope', '$compile', '$http', '$location', '$route', '$timeout','$interval', function ($scope, $compile, $http, $location, $route, $timeout, $interval) {
         // we expecting a project ID in the URL
         var projectID = $route.current.params['pid'];
         if (projectID !== undefined) { // if there is one, load that project
@@ -234,7 +234,11 @@ angular.module('matchflow.controllers', [])
         };
         // VIDEO PLAYER
         $scope.videoPlayer = {
-            timestamp : new Date().getTime(),
+            timer : {
+                timestamp : new Date().getTime(),
+                timerPosition : 0
+            },
+            videoPlaybackLength : 60 * 90, // 60 sec x 90 minutes
             status: 'paused',
             PAUSED:'paused',
             PLAYING:'playing',
@@ -243,38 +247,38 @@ angular.module('matchflow.controllers', [])
         };
         // INPUT FORMS
         $scope.newProject = {
-            name: 'test',
-            selectedTeams: 'test',
-            selectedLeague: 'test',
+            name: '',
+            selectedTeams: '',
+            selectedLeague: '',
             selectedEventGroups: [
-                {
-                    name: 'test tag group',
-                    bgColor: 'green',
-                    txtColor: 'white',
-                    eventList: [
-                        {
-                            name: 'first tag',
-                            before: 500,
-                            after: 500
-                        },{
-                            name: 'second tag',
-                            before: 500,
-                            after: 500
-                        }
-                    ]
-                },
-                {
-                    name: 'another test tag group',
-                    bgColor: 'dodgerblue',
-                    txtColor: 'orange',
-                    eventList: [
-                        {
-                            name: 'what',
-                            before: 500,
-                            after: 500
-                        }
-                    ]
-                }
+//                {
+//                    name: 'test tag group',
+//                    bgColor: 'green',
+//                    txtColor: 'white',
+//                    eventList: [
+//                        {
+//                            name: 'first tag',
+//                            before: 500,
+//                            after: 500
+//                        },{
+//                            name: 'second tag',
+//                            before: 500,
+//                            after: 500
+//                        }
+//                    ]
+//                },
+//                {
+//                    name: 'another test tag group',
+//                    bgColor: 'dodgerblue',
+//                    txtColor: 'orange',
+//                    eventList: [
+//                        {
+//                            name: 'what',
+//                            before: 500,
+//                            after: 500
+//                        }
+//                    ]
+//                }
             ],// we save an array of references
             selectedGameDate: new Date(),
             // INHERITED DATA
@@ -283,19 +287,18 @@ angular.module('matchflow.controllers', [])
             eventGroupMap : $scope.$parent.manageEvents.eventGroupMap
         };
         // Tagline functionality
-        $scope.addTagToTagLine = function (tagID) {
-            // TODO fix this
-            if ($scope.videoPlayer.status) {
-                // only add if currently playing
-                //var elementToAdd = angular.element('#' + tagID);
+        $scope.addTagToTagLine = function (tagObj,groupName) {
+            // only add if currently playing
+            if ($scope.videoPlayer.status === 'playing') {
                 var l = $scope.currentProject.addedTags.length;
-                var time = $scope.videoPlayer.timestamp;
+                var time = $scope.videoPlayer.timer.timerPosition;
                 $scope.currentProject.addedTags[l] = {
-                    id: 'tag_' + l + '_' + time,
+                    id: 'group_'+groupName+'_event_' + l + '_' + time,
                     time: time,
-                    name: 'name',//elementToAdd.data('tagname'),
-                    before: 500,//elementToAdd.data('beforetag'),
-                    after: 500//elementToAdd.data('aftertag')
+                    category: groupName,
+                    name: tagObj.name,
+                    before: tagObj.before,
+                    after: tagObj.after
                 };
             }
         };

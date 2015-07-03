@@ -452,20 +452,29 @@ angular.module('matchflow.directives', []).
     }).directive('mfEventTagLines', function($interval) {
         return {
             scope: {
-                timestamp: '=ngModel',
-                tags: '=eventTagLists',
-                moveTagLine: '=playStatus'
+                timer: '=ngModel',
+                tags: '=eventTagsToAdd',
+                tagLineStatus: '=playStatus',
+                totalDuration: '=videoDuration',
+                tagLines: '=eventGroups'
             },
-            template: '<div class="row mf-event-tag-line-container" style="position:relative;">' +
-                          '<div style="position:absolute; top:0px; left:0px; color: black;">{{ timestamp }}[{{ moveTagLine }}]</div>' +
-                          '<div id="tagContainer" class="mf-event-tag-line-markers" style="width: {{ totalDuration }}px; margin-left: -{{ currentPosition }}px;"></div>' +
-                          '<div class="mf-time-bar">' +
+            template: '<div class="row mf-event-tag-line-container">' +
+                          '<div id="tagNumbers" class="mf-event-tag-line-markers" style="width: {{ totalDuration }}px; margin-left: -{{ timer.timerPosition }}px;"></div>' +
+                          '<div id="tagContainer" class="mf-event-tag-lines" style="height: {{ tagLines.length * 30 }}px; width: {{ totalDuration }}px; margin-left: -{{ timer.timerPosition }}px;"></div>' +
+                          '<div class="mf-time-bar">{{tagLines.length}}</div>' +
                       '</div>',
             replace: true,
             restrict: 'E',
             link: function(scope, element, attr) {
+                // important variables:
+                scope.stepper = scope.timer.timestamp / scope.timeModulater;
+                scope.timeModulater = 1000; // move to timer
+                scope.timerStep = 5; // move to timer
+                scope.timer.timerPosition = 0;
+                scope.groupMap = {};
+                // we use interval to control the repetition
                 var intervalID = $interval(function() {
-                    scope.timestamp = new Date().getTime();
+                    scope.timer.timestamp = new Date().getTime();
                 },1);
                 scope.killInterval = function() {
                   if (angular.isDefined(intervalID)) {
@@ -476,46 +485,56 @@ angular.module('matchflow.directives', []).
                 scope.$on('$destroy', function() {
                     scope.killInterval();
                 });
-                
-                
-                scope.start = new Date().getTime()/100;
-                scope.end = new Date().getTime()/100+30*60*10;
-                scope.offset = 0;
-                scope.totalDuration = 30*60*10;
-                scope.step = 1;
-                scope.currentPosition = 0;
+                // adding the numbers
                 var toAdd = '';
                 for (var i = 0; i < scope.totalDuration; i++) {
-                    if (i % 50 === 0) {
-                        toAdd += '<div class="time-indicator" style="left:'+i+'px;">'+(i/10)+'</div>';
+                    if (i % 25 === 0) {
+                        toAdd += '<div class="mf-time-indicator" style="left:'+i+'px;">'+(i/5)+'</div>';
                     }
                 }
-                angular.element('#tagContainer').append(toAdd);
+                angular.element('#tagNumbers').append(toAdd);
                 scope.$watch(
-                    'timestamp',
+                    'tagLines',
+                    function() {
+                        scope.groupMap = {};
+                        for (var g = 0; g < scope.tagLines.length; g++) {
+                            var groupToAdd = scope.tagLines[g];
+                            groupToAdd.index = g;
+                            scope.groupMap[groupToAdd.name] = groupToAdd;
+                        }
+                    },
+                    true
+                );
+                scope.$watch(
+                    function () {
+                        scope.stepper = Math.trunc(scope.timer.timestamp / scope.timeModulater);
+                        return scope.stepper;
+                    },
                     function(newVal,oldVal) {
                         // need to offset against time to allow for pauses
-                        if (scope.currentPosition <= scope.end && scope.moveTagLine==='playing') {
-                            scope.currentPosition++;
-                        } else {
-                            
+                        if (scope.timer.timerPosition <= scope.totalDuration && scope.tagLineStatus==='playing') {
+                            scope.timer.timerPosition += scope.timerStep;
                         }
                     },
                     true
                 );
                 scope.$watch(
                     'tags',
-                    function(newVal,oldVal) {
+                    function() {
+                        var tagHTML = '';
                         // append the new tag (always the last one in the list)
-                        if (newVal && newVal instanceof Array && scope.start && scope.start > 0) {
-                            var newElementToAdd = newVal[newVal.length-1];
-                            if (newElementToAdd) {
-                                var width = (newElementToAdd.before + newElementToAdd.after)*10;
-                                var position = newElementToAdd.time - scope.start;
-                                var toAdd = '<div class="draggable-tag" style="left:'+position+'px; width:'+width+'px; margin-left:-'+(newElementToAdd.before*10)+'px;">'+newElementToAdd.name+'</div>';
-                                angular.element('#tagContainer').append(toAdd);
-                            }
+                        for (var t = 0; t < scope.tags.length; t++) {
+                            var tag = scope.tags[t];
+                            var width = (Number(tag.before) + Number(tag.after))*5/1000;
+                            var offset = (Number(tag.before)*5)/1000;
+                            var position = tag.time;
+                            var group = scope.groupMap[tag.category];
+                            var top = 30*group.index;
+                            // TODO need a tooltip with the tag name in it
+                            // TODO need a mechanism to adjust before, end and position
+                            tagHTML += '<div class="mf-event-tag-indicator" style="top:'+top+'px; left:'+position+'px; width:'+width+'px; margin-left:-'+offset+'px; background-color:'+group.bgColor+';"></div>';
                         }
+                        angular.element('#tagContainer').html(tagHTML);
                     }, 
                     true
                 );
@@ -530,6 +549,12 @@ angular.module('matchflow.directives', []).
             replace: true,
             restrict: 'E',
             link: function(scope, element, attrs) {
+                scope.addThisToTagLine = function(row,col) {
+                    var groupObj = scope.localData[row];
+                    var tagObj = groupObj.eventList[col];
+                    scope.$parent.addTagToTagLine(tagObj,groupObj.name);
+                };
+                scope.testT = 'what the hell';
                 scope.$watch(
                     'localData',
                     function(newVal,oldVal) {
@@ -540,11 +565,11 @@ angular.module('matchflow.directives', []).
                             contentHTML += '<div class="mf-event-group-title" style="color:'+group.bgColor+';">'+group.name+'</div>';
                             for (var c = 0; c < group.eventList.length; c++) {
                                 var event = group.eventList[c];
-                                contentHTML += '<div class="col-lg-2"><div class="mf-event-tag" style="background-color:'+group.bgColor+'; color:'+group.txtColor+';">'+event.name+'</div></div>';
+                                contentHTML += '<div class="col-lg-2"><div ng-click="addThisToTagLine('+r+','+c+')" class="mf-event-tag" style="background-color:'+group.bgColor+'; color:'+group.txtColor+';">'+event.name+'</div></div>';
                             }
                             contentHTML += '</div>';
                         }
-                        element.append($compile(contentHTML)(scope));
+                        element.html($compile(contentHTML)(scope));
                     },
                     true
                 );
@@ -575,9 +600,9 @@ angular.module('matchflow.directives', []).
                     '<button class="btn btn-info" ng-click="pause()">Pause</button>';
                 element.find('#videoPlayerHolder').html($compile(contentHTML)(scope));
                 scope.$watch(
-                    'playerData.timestamp',
+                    'playerData.timer.timestamp',
                     function(){
-                        element.find('#videoPlayerTimestamp').html(scope.playerData.timestamp+'['+scope.playerData.status+']');
+                        element.find('#videoPlayerTimestamp').html(scope.playerData.timer.timestamp+'['+scope.playerData.status+']');
                     },
                     true
                 );
