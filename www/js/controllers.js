@@ -250,48 +250,35 @@ angular.module('matchflow.controllers', [])
             name: '',
             selectedTeams: '',
             selectedLeague: '',
-            selectedEventGroups: [
-//                {
-//                    name: 'test tag group',
-//                    bgColor: 'green',
-//                    txtColor: 'white',
-//                    eventList: [
-//                        {
-//                            name: 'first tag',
-//                            before: 500,
-//                            after: 500
-//                        },{
-//                            name: 'second tag',
-//                            before: 500,
-//                            after: 500
-//                        }
-//                    ]
-//                },
-//                {
-//                    name: 'another test tag group',
-//                    bgColor: 'dodgerblue',
-//                    txtColor: 'orange',
-//                    eventList: [
-//                        {
-//                            name: 'what',
-//                            before: 500,
-//                            after: 500
-//                        }
-//                    ]
-//                }
-            ],// we save an array of references
+            selectedEventGroups: [],// we save an array of references
             selectedGameDate: new Date(),
             // INHERITED DATA
             // we pull through important references for the create project dialog
             eventGroupList : $scope.$parent.manageEvents.eventGroupList,
             eventGroupMap : $scope.$parent.manageEvents.eventGroupMap
         };
+        // CHART DATA
+        $scope.eventGroupChart = {
+            hasLabel : {},
+            labels : [],
+            data : []
+        };
+        
         // Tagline functionality
         $scope.addTagToTagLine = function (tagObj,groupName) {
             // only add if currently playing
             if ($scope.videoPlayer.status === 'playing') {
                 var l = $scope.currentProject.addedTags.length;
                 var time = $scope.videoPlayer.timer.timerPosition;
+                // update chart data (event group)
+                if ($scope.eventGroupChart.hasLabel[groupName] === undefined) {
+                    // we can set the colors of the chart here: Chart.defaults.global.colours | Chart.defaults.Doughnut
+                    $scope.eventGroupChart.hasLabel[groupName] = $scope.eventGroupChart.labels.length;
+                    $scope.eventGroupChart.labels[$scope.eventGroupChart.labels.length] = groupName;
+                    $scope.eventGroupChart.data[$scope.eventGroupChart.hasLabel[groupName]] = 1;
+                } else {
+                    $scope.eventGroupChart.data[$scope.eventGroupChart.hasLabel[groupName]]++;
+                }
                 $scope.currentProject.addedTags[l] = {
                     id: 'group_'+groupName+'_event_' + l + '_' + time,
                     time: time,

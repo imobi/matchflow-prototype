@@ -2,7 +2,7 @@
 
 /* App Module */
 
-angular.module('matchflow', ['ngRoute','matchflow.controllers','matchflow.directives']).
+angular.module('matchflow', ['ngRoute','chart.js','matchflow.controllers','matchflow.directives']).
     config(
         [
             '$routeProvider', 
